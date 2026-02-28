@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Legit Media</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .shimmer { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
+        .glass-card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.02); }
+        .input-group { position: relative; transition: all 0.2s; }
+        .input-group:focus-within { transform: translateY(-2px); }
+        .input-style { background: #f1f5f9; border: 2px solid transparent; width: 100%; padding: 1rem 1.25rem; border-radius: 1.25rem; font-weight: 600; outline: none; transition: all 0.2s; }
+        .input-style:focus { border-color: #6366f1; background: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.1); }
+        
+        /* Smooth Animation for UI updates */
+        #pfp-display, #display-name-header { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+
+    <div id="toast" class="toast bg-slate-900 text-white px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl">
+        <div class="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3"/></svg>
+        </div>
+        <span class="text-xs font-black uppercase tracking-widest">Profile Synced Successfully</span>
+    </div>
+
+    <nav class="max-w-xl mx-auto p-6 flex justify-between items-center">
+        <button onclick="window.location.href='dashboard.html'" class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center shadow-sm hover:bg-slate-50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5"/></svg>
+        </button>
+        <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Account Settings</span>
+        <div class="w-10"></div> </nav>
+
+    <main class="max-w-xl mx-auto px-6 space-y-8">
+        
+        <div class="text-center py-4">
+            <div class="relative inline-block group">
+                <div id="pfp-display" class="w-28 h-28 shimmer rounded-[2.5rem] flex items-center justify-center text-white text-4xl font-black shadow-2xl border-4 border-white uppercase transition-transform group-hover:scale-105">
+                    ??
+                </div>
+                <div class="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-full shadow-lg">
+                    <div class="bg-indigo-600 w-6 h-6 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <h2 id="display-name-header" class="mt-6 text-3xl font-black text-slate-900 tracking-tight">Loading...</h2>
+            <p id="display-email-header" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">...</p>
+        </div>
+
+        <div class="glass-card rounded-[2.5rem] p-8 space-y-6">
+            <div class="space-y-4">
+                <div class="input-group">
+                    <label class="text-[9px] font-black text-indigo-500 uppercase tracking-widest ml-4 mb-2 block">Choose Display Username</label>
+                    <input type="text" id="username" onkeyup="liveUpdate()" placeholder="@username" class="input-style">
+                </div>
+
+                <div class="input-group">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4 mb-2 block">Full Name (Legal)</label>
+                    <input type="text" id="full-name" onkeyup="liveUpdate()" placeholder="Enter full name" class="input-style">
+                </div>
+            </div>
+
+            <button onclick="saveSettings()" id="save-btn" class="w-full py-5 shimmer text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all">
+                Update Identity
+            </button>
+        </div>
+
+        <div class="space-y-4">
+            <button onclick="sendPasswordReset()" class="w-full p-6 glass-card rounded-3xl flex items-center justify-between group hover:border-indigo-200 transition-all">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-xs font-black uppercase tracking-widest">Security</p>
+                        <p class="text-[10px] font-bold text-slate-400">Request password change</p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-slate-300 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="3"/></svg>
+            </button>
+
+            <button onclick="logout()" class="w-full p-4 text-[10px] font-black text-rose-500 uppercase tracking-widest hover:bg-rose-50 rounded-2xl transition-all">
+                Log Out of All Sessions
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        // SUPABASE CONFIG (Use your Key)
+        const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo"; 
+        const sb = supabase.createClient(SB_URL, SB_KEY);
+
+        let userSession = null;
+
+        // Helper: Generate Initials
+        const getInitials = (str) => {
+            if(!str) return "??";
+            const parts = str.trim().split(' ');
+            if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+            return parts[0][0].toUpperCase();
+        };
+
+        // 1. Initialize Page
+        async function initPage() {
+            const { data: { user } } = await sb.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+            userSession = user;
+
+            document.getElementById('display-email-header').innerText = user.email;
+
+            // Fetch profile data from columns: username, full_name
+            const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+
+            if (profile) {
+                document.getElementById('username').value = profile.username || '';
+                document.getElementById('full-name').value = profile.full_name || '';
+                liveUpdate(); // Set the initial branding
+            }
+        }
+
+        // 2. Live Branding Preview
+        function liveUpdate() {
+            const userInp = document.getElementById('username').value;
+            const nameInp = document.getElementById('full-name').value;
+            
+            // Priority for Header: Username > Full Name > Email prefix
+            const currentName = userInp || nameInp || userSession.email.split('@')[0];
+            
+            document.getElementById('display-name-header').innerText = currentName;
+            document.getElementById('pfp-display').innerText = getInitials(currentName);
+        }
+
+        // 3. Save to Supabase
+        async function saveSettings() {
+            const btn = document.getElementById('save-btn');
+            const username = document.getElementById('username').value.trim();
+            const full_name = document.getElementById('full-name').value.trim();
+
+            if (!username) return alert("Username is required!");
+
+            btn.innerText = "SYNCHRONIZING...";
+            btn.disabled = true;
+
+            const { error } = await sb.from('profiles')
+                .update({ 
+                    username: username, 
+                    full_name: full_name 
+                })
+                .eq('id', userSession.id);
+
+            if (error) {
+                alert("Error: Username might be taken or database error.");
+            } else {
+                showToast();
+            }
+
+            btn.innerText = "UPDATE IDENTITY";
+            btn.disabled = false;
+        }
+
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        async function sendPasswordReset() {
+            const { error } = await sb.auth.resetPasswordForEmail(userSession.email);
+            if (error) alert(error.message);
+            else alert("Reset link sent!");
+        }
+
+        async function logout() {
+            await sb.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
+        window.onload = initPage;
+    </script>
+</body>
+</html>
