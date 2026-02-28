@@ -41,7 +41,6 @@
     <main class="max-w-lg mx-auto px-4 mt-8 space-y-6">
         
         <div class="glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100/50 space-y-6">
-            
             <div class="relative">
                 <label class="text-[10px] font-bold text-slate-400 ml-1 uppercase tracking-widest">1. Choose Country</label>
                 <div class="mt-1.5 relative">
@@ -76,19 +75,57 @@
             </button>
         </div>
 
+        <div class="glass-card rounded-[2rem] p-6 shadow-xl shadow-slate-100/50 space-y-4">
+            <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2.5"/></svg>
+                Activation Guide
+            </h4>
+            <div class="space-y-3">
+                <div class="flex gap-3">
+                    <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">1</span>
+                    <p class="text-xs text-slate-500 leading-relaxed">Select <b>Country</b> & <b>Service</b>, then click Place Order.</p>
+                </div>
+                <div class="flex gap-3">
+                    <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+                    <p class="text-xs text-slate-500 leading-relaxed">Copy the number and use it on the target app immediately.</p>
+                </div>
+                <div class="flex gap-3">
+                    <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+                    <p class="text-xs text-slate-500 leading-relaxed">Wait on this page for the <b>OTP Code</b> to show up.</p>
+                </div>
+            </div>
+        </div>
+
         <div id="smsPanel" class="hidden glass-card rounded-[2.5rem] p-8 border-2 border-dashed border-indigo-200 text-center space-y-4 pop-animation">
             <div class="flex justify-between items-center">
                 <div class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest animate-pulse-custom">Listening for SMS...</div>
                 <button onclick="cancelCurrentOrder()" class="text-[9px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-3 py-1 rounded-full border border-rose-100 hover:bg-rose-100 transition-all">Cancel Order</button>
             </div>
             
-            <h3 id="activeNumber" class="text-3xl font-black text-slate-800 tracking-tighter"></h3>
-            <div id="otpDisplay" class="text-6xl font-mono font-black text-indigo-600 py-2">----</div>
+            <div class="flex items-center justify-center gap-3">
+                <h3 id="activeNumber" class="text-3xl font-black text-slate-800 tracking-tighter"></h3>
+                <button onclick="copyNumber()" class="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-all active:scale-90 shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" stroke-width="2"/></svg>
+                </button>
+            </div>
+
+            <div id="otpDisplay" class="text-6xl font-mono font-black text-indigo-600 py-2 tracking-widest">----</div>
             
             <div class="flex flex-col gap-2">
-                <p class="text-[10px] text-slate-400 font-medium">Please copy and paste the number above. SMS arrives automatically.</p>
-                <a href="history.html" class="text-[10px] font-bold text-indigo-600 underline uppercase tracking-widest">Transaction History</a>
+                <p class="text-[10px] text-slate-400 font-medium">Auto-verification active. Do not close this page.</p>
+                <a href="history.html" class="text-[10px] font-bold text-indigo-600 underline uppercase tracking-widest">View History</a>
             </div>
+        </div>
+
+        <div class="space-y-3">
+            <button onclick="window.location.href='contact.html'" class="w-full py-4 border-2 border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-white transition-all group">
+                <svg class="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" stroke-width="2"/></svg>
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-slate-900 transition-colors">Contact Support</span>
+            </button>
+            
+            <button onclick="window.location.href='dashboard.html'" class="w-full text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-all py-2">
+                ← Return to Dashboard
+            </button>
         </div>
     </main>
 
@@ -98,12 +135,12 @@
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2.5"/></svg>
             </div>
             <div>
-                <h3 class="text-2xl font-black text-slate-900 leading-tight">Low Wallet Funds</h3>
-                <p class="text-sm text-slate-500 font-medium mt-2">You don't have enough balance to complete this purchase.</p>
+                <h3 class="text-2xl font-black text-slate-900">Insufficient Funds</h3>
+                <p class="text-sm text-slate-500 font-medium mt-2">Top up your wallet to purchase this number.</p>
             </div>
             <div class="space-y-3">
-                <button onclick="window.location.href='dashboard.html'" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all">
-                    RECHARGE WALLET
+                <button onclick="window.location.href='recharge.html'" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all">
+                    RECHARGE NOW
                 </button>
                 <button onclick="document.getElementById('lowBalanceModal').classList.add('hidden')" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Dismiss</button>
             </div>
@@ -134,7 +171,7 @@
             document.getElementById('nav-balance').innerText = "₦" + currentBalance.toLocaleString();
             
             const name = profile.full_name || profile.username || user.email;
-            document.getElementById('user-initials').innerText = name.split(' ').map(n => n[0]).join('').substring(0,2);
+            document.getElementById('user-initials').innerText = name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
 
             loadData();
         }
@@ -223,8 +260,7 @@
                     const number = result.data.number;
                     currentOrderId = result.data.request_id;
 
-                    // Recording to Supabase
-                    await sb.from('transactions').insert({ user_id: userData.id, amount: price, type: 'Purchase', status: 'success' });
+                    await sb.from('transactions').insert({ user_id: userData.id, amount: price, type: 'Purchase', status: 'success', description: `Number: +${number} (${serviceName})` });
                     await sb.from('purchased_numbers').insert({ user_id: userData.id, number: "+" + number, service: serviceName, order_id: currentOrderId, otp: null });
                     
                     const { data: updateData } = await sb.from('profiles').update({ wallet_balance: currentBalance - price }).eq('id', userData.id).select().single();
@@ -237,11 +273,21 @@
                 } else {
                     alert(result.message); btn.innerText = "Place Order"; btn.disabled = false;
                 }
-            } catch (err) { alert("Failed to connect. Try again."); btn.innerText = "Place Order"; btn.disabled = false; }
+            } catch (err) { alert("Failed to connect."); btn.innerText = "Place Order"; btn.disabled = false; }
+        }
+
+        function copyNumber() {
+            const num = document.getElementById('activeNumber').innerText;
+            navigator.clipboard.writeText(num).then(() => {
+                const btn = document.querySelector('[onclick="copyNumber()"]');
+                const oldHtml = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3"/></svg>`;
+                setTimeout(() => btn.innerHTML = oldHtml, 2000);
+            });
         }
 
         async function cancelCurrentOrder() {
-            if (!currentOrderId || !confirm("Cancel order and try another?")) return;
+            if (!currentOrderId || !confirm("Cancel this number?")) return;
             try {
                 await fetch(`${WORKER}?url=${encodeURIComponent('https://sms-bus.com/api/control/set/status?request_id=' + currentOrderId + '&status=8')}`);
                 clearInterval(smsTimer);
@@ -259,7 +305,7 @@
                     document.getElementById('otpDisplay').innerText = json.data;
                     await sb.from('purchased_numbers').update({ otp: json.data }).eq('order_id', reqId);
                     clearInterval(smsTimer);
-                    alert("OTP RECEIVED!");
+                    alert("OTP RECEIVED: " + json.data);
                 }
             }, 7000);
         }
