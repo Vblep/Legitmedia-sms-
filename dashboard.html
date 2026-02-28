@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legit Media SMS - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .sidebar-transition { transition: transform 0.3s ease-in-out; }
+        .glass-overlay { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(6px); }
+        .shimmer { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
+        .typewriter { overflow: hidden; border-right: 3px solid #0ea5e9; white-space: nowrap; margin: 0; animation: typing 3.5s steps(20, end), blink-caret .75s step-end infinite; }
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #0ea5e9 } }
+        .social-icon { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .social-icon:hover { transform: translateY(-5px); filter: brightness(1.1); }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800">
+
+    <div id="mobile-menu" class="fixed inset-0 z-[100] hidden">
+        <div class="glass-overlay absolute inset-0" onclick="toggleMenu()"></div>
+        <aside id="sidebar-container" class="relative w-72 bg-white h-full shadow-2xl sidebar-transition -translate-x-full flex flex-col">
+            <div class="p-6 border-b border-slate-50 flex items-center gap-2">
+                <div class="w-8 h-8 shimmer rounded-lg flex items-center justify-center text-white font-bold text-xs">LM</div>
+                <span class="text-lg font-extrabold text-[#eab308]">LEGIT <span class="text-[#0ea5e9]">MEDIA</span></span>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-2">Main</p>
+                <a href="dashboard.html" class="flex items-center gap-3 p-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3" stroke-width="2"/></svg> Dashboard
+                </a>
+                
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mt-6 mb-2">Services</p>
+                <a href="usa-numbers.html" class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold">
+                    <span class="text-lg">🇺🇸</span> USA Numbers
+                </a>
+                <a href="buy-number.html" class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9" stroke-width="2"/></svg> Global Numbers
+                </a>
+                <a href="recharge.html" class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2"/></svg> Fund Wallet
+                </a>
+
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mt-6 mb-2">History</p>
+                <a href="activity.html" class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2"/></svg> SMS History
+                </a>
+                <a href="activity.html" class="flex items-center gap-3 p-3 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"/></svg> Transactions
+                </a>
+
+                <div class="pt-8">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-4">Support</p>
+                    <div class="flex items-center gap-4 px-3">
+                        <a href="https://wa.me/234XXXXXXXXXX" class="social-icon w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 border border-emerald-100"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412 0 6.556-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.309 1.656zm6.29-4.171c1.589.945 3.554 1.443 5.548 1.444 5.51 0 9.993-4.482 9.993-9.992 0-2.67-1.039-5.179-2.924-7.064-1.886-1.887-4.394-2.926-7.066-2.927-5.507 0-9.99 4.483-9.993 9.992 0 2.096.547 4.142 1.588 5.945l-1.03 3.766 3.884-1.014z"/></svg></a>
+                        <a href="https://t.me/LegitMediaAdmin" class="social-icon w-10 h-10 bg-sky-50 rounded-xl flex items-center justify-center text-sky-600 border border-sky-100"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm4.462 8.816l-5.054 7.245c-.246.351-.84.341-1.071-.02l-1.939-3.033-2.147-.643c-.579-.173-.553-.997.042-1.135l9.313-2.147c.54-.124 1.014.39.856.733z"/></svg></a>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="p-4 border-t">
+                <button onclick="logout()" class="w-full flex items-center gap-3 p-3 text-rose-500 hover:bg-rose-50 rounded-xl text-sm font-bold transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7" stroke-width="2" stroke-linecap="round"/></svg> Logout
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <header class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleMenu()" class="p-2 bg-slate-50 rounded-lg lg:hidden"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2"/></svg></button>
+                <div class="typewriter-container">
+                    <h1 class="text-xl font-black typewriter text-slate-900">LEGIT <span class="text-indigo-600">MEDIA SMS</span></h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="header-balance" class="hidden sm:flex bg-indigo-50 px-4 py-1.5 rounded-full text-indigo-700 font-black text-xs border border-indigo-100">₦0.00</div>
+                <button onclick="toggleProfile()" id="avatar-toggle" class="w-10 h-10 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center shadow-lg active:scale-90 transition-transform">..</button>
+                <div id="profile-dropdown" class="absolute right-0 top-14 w-56 bg-white rounded-2xl shadow-2xl border p-4 hidden">
+                    <p id="user-name" class="font-bold text-sm text-slate-900">User</p>
+                    <p id="user-email" class="text-[10px] text-slate-400 mb-4">email@test.com</p>
+                    <hr class="mb-4">
+                    <button onclick="logout()" class="w-full text-left text-xs font-bold text-rose-500">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available Funds</p>
+                <h2 id="card-balance" class="text-4xl font-black text-slate-900 mt-1">₦0.00</h2>
+                <button onclick="window.location.href='recharge.html'" class="mt-5 px-6 py-2 shimmer text-white rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-indigo-100">Recharge</button>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Numbers Used</p>
+                <h2 id="lifetime-numbers" class="text-4xl font-black text-slate-900 mt-1">0</h2>
+                <p class="text-[10px] font-bold text-indigo-500 uppercase mt-4">Active Profile</p>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lifetime Funding</p>
+                <h2 id="lifetime-recharge" class="text-4xl font-black text-emerald-500 mt-1">₦0.00</h2>
+                <p class="text-[10px] font-bold text-emerald-500 uppercase mt-4">Verified Level</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b flex justify-between items-center bg-slate-50/30">
+                    <h3 class="font-black text-slate-800 uppercase text-[10px] tracking-widest">SMS Logs</h3>
+                    <a href="buy-number.html" class="p-2 bg-white rounded-xl border hover:text-indigo-600 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="3"/></svg></a>
+                </div>
+                <div id="history-container" class="p-6 space-y-4 min-h-[300px]"></div>
+            </div>
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b flex justify-between items-center bg-slate-50/30">
+                    <h3 class="font-black text-slate-800 uppercase text-[10px] tracking-widest">Financial Records</h3>
+                    <button class="text-[10px] font-bold text-slate-400 uppercase hover:text-indigo-600">History</button>
+                </div>
+                <div id="transactions-container" class="p-6 space-y-4 min-h-[300px]"></div>
+            </div>
+        </div>
+    </main>
+
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true; s1.src='https://embed.tawk.to/69a2fa95dc3b531c34c85600/default';
+        s1.charset='UTF-8'; s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+        })();
+    </script>
+
+        <script>
+        const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo"; 
+        const sb = supabase.createClient(SB_URL, SB_KEY);
+
+        const formatNaira = (amt) => '₦' + Number(amt || 0).toLocaleString('en-NG', {minimumFractionDigits: 2});
+        const getInitials = (n) => n ? n.split(' ').map(x => x[0]).join('').toUpperCase().substring(0, 2) : '??';
+
+        function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); document.getElementById('sidebar-container').classList.toggle('-translate-x-full'); }
+        function toggleProfile() { document.getElementById('profile-dropdown').classList.toggle('hidden'); }
+        async function logout() { await sb.auth.signOut(); window.location.href = 'login.html'; }
+
+        async function loadDashboard() {
+            const { data: { user } } = await sb.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+
+            // 1. Get Profile & Balance
+            const { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).single();
+            const name = prof?.full_name || prof?.username || user.email.split('@')[0];
+            const bal = prof?.wallet_balance || 0;
+
+            document.getElementById('user-name').innerText = name;
+            document.getElementById('user-email').innerText = user.email;
+            document.getElementById('avatar-toggle').innerText = getInitials(name);
+            document.getElementById('header-balance').innerText = formatNaira(bal);
+            document.getElementById('card-balance').innerText = formatNaira(bal);
+            document.getElementById('header-balance').classList.remove('hidden');
+
+            try {
+                // 2. Lifetime Funding (Sum of all successful deposits)
+                const { data: txs_all } = await sb.from('transactions').select('amount, status, type').eq('user_id', user.id);
+                const totalRecharged = txs_all?.reduce((acc, tx) => {
+                    const st = tx.status?.toLowerCase();
+                    const ty = tx.type?.toLowerCase();
+                    if ((st === 'success' || st === 'successful' || st === 'completed') && 
+                        (ty === 'deposit' || ty === 'recharge')) {
+                        return acc + Number(tx.amount);
+                    }
+                    return acc;
+                }, 0) || 0;
+                document.getElementById('lifetime-recharge').innerText = formatNaira(totalRecharged);
+
+                // 3. Number Stats
+                const { count } = await sb.from('purchased_numbers').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+                document.getElementById('lifetime-numbers').innerText = count || 0;
+
+                // 4. SMS Logs (purchased_numbers table)
+                const { data: nums, error: numErr } = await sb.from('purchased_numbers')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+
+                const historyCont = document.getElementById('history-container');
+                if (nums && nums.length > 0) {
+                    historyCont.innerHTML = nums.map(n => `
+                        <div class="flex justify-between items-center p-4 bg-slate-50/50 rounded-2xl border border-slate-100 hover:bg-white transition-all shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">SMS</div>
+                                <div>
+                                    <p class="text-[9px] font-black text-indigo-600 uppercase mb-0.5">${n.service || n.service_name || 'Global Number'}</p>
+                                    <p class="text-sm font-black text-slate-800">${n.number}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-black ${n.otp ? 'text-emerald-500' : 'text-amber-500 animate-pulse'}">
+                                    ${n.otp || 'WAITING...'}
+                                </p>
+                                <p class="text-[8px] text-slate-400 font-bold uppercase">${new Date(n.created_at).toLocaleTimeString()}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    historyCont.innerHTML = `<div class="flex flex-col items-center justify-center py-12 opacity-40">
+                        <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2"/></svg>
+                        <p class="text-xs font-bold uppercase tracking-widest">No Numbers Yet</p>
+                    </div>`;
+                }
+
+                // 5. Financial Records (transactions table)
+                const { data: recs, error: recErr } = await sb.from('transactions')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(4);
+
+                const transCont = document.getElementById('transactions-container');
+                if (recs && recs.length > 0) {
+                    transCont.innerHTML = recs.map(r => {
+                        const isDeposit = r.type?.toLowerCase().includes('deposit') || r.type?.toLowerCase().includes('recharge');
+                        return `
+                        <div class="flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl ${isDeposit ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} flex items-center justify-center font-bold text-xs">
+                                    ${isDeposit ? 'IN' : 'OUT'}
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black uppercase text-slate-800">${r.type || 'Transaction'}</p>
+                                    <p class="text-[8px] text-slate-400 font-bold">${new Date(r.created_at).toLocaleDateString()}</p>
+                                </div>
+                            </div>
+                            <p class="text-sm font-black ${isDeposit ? 'text-emerald-600' : 'text-slate-900'}">
+                                ${isDeposit ? '+' : '-'} ${formatNaira(r.amount)}
+                            </p>
+                        </div>`;
+                    }).join('');
+                } else {
+                    transCont.innerHTML = `<div class="flex flex-col items-center justify-center py-12 opacity-40">
+                        <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" stroke-width="2"/></svg>
+                        <p class="text-xs font-bold uppercase tracking-widest">No Transactions</p>
+                    </div>`;
+                }
+
+            } catch (e) { console.error("Critical Dashboard Error:", e); }
+        }
+
+        window.onload = () => { loadDashboard(); setInterval(loadDashboard, 15000); };
+    </script>
+    
+</body>
+</html>

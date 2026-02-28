@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USA Numbers - Legit Media</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .service-card { transition: all 0.2s ease; border: 1px solid #f1f5f9; cursor: pointer; }
+        .service-card:hover { transform: translateY(-3px); border-color: #6366f1; background: #fff; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .loader { border-top-color: #6366f1; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5" stroke-linecap="round"/></svg></a>
+            <h1 class="text-xl font-black text-slate-900">USA <span class="text-indigo-600">ONLY</span></h1>
+        </div>
+        <div id="balance-badge" class="bg-indigo-600 text-white px-4 py-1.5 rounded-full font-bold text-xs uppercase">₦...</div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto p-6">
+        <div class="mb-8">
+            <input type="text" id="searchBox" onkeyup="filterList()" placeholder="Search WhatsApp, Telegram, etc..." class="w-full p-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+
+        <div id="status-area" class="flex flex-col items-center justify-center py-20">
+            <div class="loader w-10 h-10 border-4 border-slate-200 rounded-full mb-4"></div>
+            <p id="loading-text" class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Connecting to SMS Bus...</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 hidden" id="usaGrid"></div>
+    </main>
+
+    <script>
+        // --- SETTINGS ---
+        const PROXY_URL = "https://sms-gateway.ebuvick0.workers.dev/"; // Paste your Worker URL here
+        const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo";
+        const PROFIT_PERCENTAGE = 1.5; // Example: 50% profit markup
+        const NAIRA_RATE = 1000; // Adjust based on your SMS Bus currency (Rubles/USD to Naira)
+        
+        const sb = supabase.createClient(SB_URL, SB_KEY);
+        let allServices = [];
+
+        async function init() {
+            // 1. Get User Balance
+            const { data: { user } } = await sb.auth.getUser();
+            const { data: profile } = await sb.from('profiles').select('wallet_balance').eq('id', user.id).single();
+            document.getElementById('balance-badge').innerText = "₦" + (profile?.wallet_balance || 0).toLocaleString();
+
+            // 2. SMART FETCH - This avoids "Action not found"
+            try {
+                // We try the standard format first
+                let response = await fetch(`${PROXY_URL}?action=getPrices&country=12`);
+                let text = await response.text();
+
+                // If the worker returns "Action not found", we try an alternative URL format
+                if (text.includes("Action not found")) {
+                    console.log("Retrying with alternative URL format...");
+                    response = await fetch(`${PROXY_URL}/getPrices/12`); 
+                    text = await response.text();
+                }
+
+                const data = JSON.parse(text);
+                const usaData = data['12'] || data['1'] || data['0'] || data; // Flexible key matching
+
+                allServices = Object.keys(usaData).map(key => {
+                    const rawCost = usaData[key].cost || 0;
+                    // Calculate: (Original Cost * Conversion Rate) * Profit Markup
+                    const finalPrice = Math.ceil((rawCost * NAIRA_RATE) * PROFIT_PERCENTAGE);
+
+                    return {
+                        code: key,
+                        name: key.toUpperCase(),
+                        price: finalPrice,
+                        stock: usaData[key].count || 0
+                    };
+                }).filter(s => s.stock > 0);
+
+                render(allServices);
+            } catch (err) {
+                console.error("Fetch Error:", err);
+                document.getElementById('status-area').innerHTML = `
+                    <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100 text-center">
+                        <p class="text-rose-600 font-black text-xs uppercase mb-2">Connection Error</p>
+                        <p class="text-slate-500 text-xs">${err.message}</p>
+                        <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-rose-600 text-white rounded-xl text-[10px] font-bold">RETRY CONNECTION</button>
+                    </div>
+                `;
+            }
+        }
+
+        function render(list) {
+            const grid = document.getElementById('usaGrid');
+            const status = document.getElementById('status-area');
+            
+            grid.innerHTML = list.map(s => `
+                <div onclick="purchase('${s.code}', ${s.price})" class="service-card bg-white p-5 rounded-[2rem] shadow-sm">
+                    <p class="text-[9px] font-black text-indigo-500 uppercase mb-1">${s.code}</p>
+                    <h4 class="font-bold text-slate-800 text-[13px] truncate mb-3">${s.name}</h4>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-black text-slate-900">₦${s.price.toLocaleString()}</span>
+                        <span class="text-[8px] bg-slate-100 px-2 py-0.5 rounded text-slate-400 font-bold uppercase">${s.stock} pcs</span>
+                    </div>
+                </div>
+            `).join('');
+
+            status.classList.add('hidden');
+            grid.classList.remove('hidden');
+        }
+
+        function filterList() {
+            const q = document.getElementById('searchBox').value.toLowerCase();
+            const filtered = allServices.filter(s => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q));
+            render(filtered);
+        }
+
+        async function purchase(code, price) {
+            if(!confirm(`Buy ${code} USA number for ₦${price.toLocaleString()}?`)) return;
+            alert(`Contacting Proxy... Purchasing ${code}`);
+            // Logic for purchase goes here
+        }
+
+        init();
+    </script>
+</body>
+</html>

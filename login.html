@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Legit Media SMS</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#0052ff);
+  background-size:400% 400%;
+  animation:bgMove 10s ease infinite;
+  padding:15px;
+}
+
+@keyframes bgMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+.card{
+  width:100%;
+  max-width:380px;
+  padding:35px 25px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(15px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.3);
+  color:white;
+  position:relative;
+}
+
+.card h2{
+  text-align:center;
+  margin-bottom:25px;
+  font-size:22px;
+}
+
+.input-group{
+  margin-bottom:18px;
+  position:relative;
+}
+
+.input-group input{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  outline:none;
+  background:rgba(255,255,255,0.2);
+  color:white;
+  font-size:14px;
+}
+
+.input-group input:focus{
+  background:rgba(255,255,255,0.35);
+}
+
+.eye{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:14px;
+  opacity:0.8;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#00e5ff;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:5px;
+}
+
+button:hover{
+  opacity:0.9;
+}
+
+.link{
+  text-align:center;
+  margin-top:15px;
+  font-size:14px;
+}
+
+.link a{
+  color:#00e5ff;
+  text-decoration:none;
+}
+
+.message{
+  text-align:center;
+  margin-top:12px;
+  color:#ff4d4d;
+  font-size:14px;
+}
+
+#loadingOverlay{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.8);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border-radius:20px;
+  visibility:hidden;
+  opacity:0;
+  transition:0.3s;
+}
+
+#loadingOverlay.show{
+  visibility:visible;
+  opacity:1;
+}
+
+.phone{
+  font-size:55px;
+  animation:float 1.5s ease-in-out infinite;
+}
+
+@keyframes float{
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-15px);}
+  100%{transform:translateY(0);}
+}
+
+@media(min-width:768px){
+  body{
+    background:#0f2027;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div id="loadingOverlay">
+    <div class="phone">📱</div>
+  </div>
+
+  <h2>Welcome Back</h2>
+
+  <div class="input-group">
+    <input type="email" id="email" placeholder="Email">
+  </div>
+
+  <div class="input-group">
+    <input type="password" id="password" placeholder="Password">
+    <span class="eye" onclick="togglePassword()">👁</span>
+  </div>
+
+  <button onclick="login()">Login</button>
+
+  <div class="link">
+    <a href="#" onclick="forgotPassword()">Forgot Password?</a>
+  </div>
+
+  <div class="message" id="message"></div>
+
+  <div class="link">
+    <a href="register.html">Create Account</a>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo";
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function showLoader(){
+  document.getElementById("loadingOverlay").classList.add("show");
+}
+
+function hideLoader(){
+  document.getElementById("loadingOverlay").classList.remove("show");
+}
+
+function togglePassword(){
+  const password = document.getElementById("password");
+  password.type = password.type === "password" ? "text" : "password";
+}
+
+async function login(){
+  showLoader();
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if(!email || !password){
+    hideLoader();
+    document.getElementById("message").innerText = "Please fill all fields.";
+    return;
+  }
+
+  const { error } = await client.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  hideLoader();
+
+  if(error){
+    document.getElementById("message").innerText = error.message;
+  } else {
+    window.location.href = "dashboard.html";
+  }
+}
+
+async function forgotPassword(){
+  const email = document.getElementById("email").value.trim();
+
+  if(!email){
+    document.getElementById("message").innerText = "Enter your email first.";
+    return;
+  }
+
+  const { error } = await client.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + "/reset-password.html"
+  });
+
+  if(error){
+    document.getElementById("message").innerText = error.message;
+  } else {
+    document.getElementById("message").style.color = "#00ffae";
+    document.getElementById("message").innerText =
+      "Password reset link sent to your email.";
+  }
+}
+
+async function checkUser(){
+  const { data } = await client.auth.getUser();
+  if(data.user){
+    window.location.href = "dashboard.html";
+  }
+}
+
+checkUser();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Legit Media SMS</title>
+<style>
+/* Reset */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif; overflow-x:hidden; background:#0f172a; color:white;}
+
+/* Loading Overlay */
+#loadingOverlay{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:2000;
+  visibility:hidden;
+  opacity:0;
+  transition: opacity 0.3s;
+}
+#loadingOverlay.show{visibility:visible;opacity:1;}
+.loader{
+  border:6px solid #f3f3f3;
+  border-top:6px solid #00e5ff;
+  border-radius:50%;
+  width:60px;height:60px;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+
+/* Navbar */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 50px;
+  background:rgba(15,23,42,0.85);
+  position:fixed;width:100%;top:0;z-index:1000;
+  backdrop-filter:blur(10px);
+}
+.navbar h1{color:#00e5ff;font-size:28px;cursor:pointer; transition:transform 0.3s;}
+.navbar h1:hover{transform:scale(1.05);}
+.navbar a{margin-left:20px;color:white;text-decoration:none;font-weight:bold;transition:0.3s;}
+.navbar a:hover{color:#00e5ff; transform:scale(1.05);}
+
+/* Hero Section */
+.hero{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  text-align:center;
+  background: url('https://images.unsplash.com/photo-1581090700227-2b7c0a3a8a4d?auto=format&fit=crop&w=1400&q=80') no-repeat center center/cover;
+  position:relative;
+  overflow:hidden;
+}
+.hero::after{
+  content:'';
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  background: rgba(0,0,0,0.6);
+}
+.hero-content{
+  position:relative;
+  z-index:1;
+  max-width:800px;
+  opacity:0;
+  transform:translateY(40px);
+  animation:fadeInUp 1.5s forwards;
+}
+.hero h2{font-size:52px;margin-bottom:20px; line-height:1.2;}
+.hero p{font-size:20px;margin-bottom:30px;}
+.btn{
+  display:inline-block;
+  background:#0052ff;
+  padding:15px 40px;
+  border-radius:8px;
+  color:white;
+  font-size:18px;
+  margin:10px;
+  text-decoration:none;
+  cursor:pointer;
+  transition:all 0.3s;
+}
+.btn:hover{
+  background:#003fcc;
+  transform:translateY(-3px) scale(1.05);
+}
+
+/* Info Section */
+.info-section{
+  padding:80px 20px;
+  background:#f4f6f9;
+  color:#111;
+  text-align:center;
+}
+.info-section h3{
+  font-size:32px;
+  margin-bottom:20px;
+  position:relative;
+}
+.info-section h3::after{
+  content:'';
+  display:block;
+  width:60px;height:4px;
+  background:#0052ff;
+  margin:10px auto 0 auto;
+  border-radius:2px;
+}
+.info-section p{
+  font-size:18px;
+  max-width:800px;
+  margin:20px auto 40px auto;
+  line-height:1.6;
+}
+
+/* Feature Cards */
+.cards{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:30px;
+  margin-top:40px;
+}
+.card{
+  background:white;
+  color:#111;
+  padding:30px;
+  border-radius:12px;
+  width:250px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  transition: transform 0.3s, box-shadow 0.3s;
+  opacity:0;
+  transform:translateY(40px);
+}
+.card.show{
+  opacity:1;
+  transform:translateY(0);
+}
+.card:hover{
+  transform: translateY(-10px);
+  box-shadow:0 15px 30px rgba(0,0,0,0.2);
+}
+.card img{
+  width:60px;
+  margin-bottom:15px;
+}
+
+/* Footer */
+footer{
+  background:#0f172a;
+  color:white;
+  text-align:center;
+  padding:30px;
+  font-size:14px;
+}
+
+/* Animations */
+@keyframes fadeInUp{
+  0%{opacity:0; transform:translateY(40px);}
+  100%{opacity:1; transform:translateY(0);}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="phone-loader">
+    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="80" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="2" width="12" height="20" rx="2" ry="2"/>
+      <line x1="12" y1="18" x2="12.01" y2="18"/>
+    </svg>
+  </div>
+</div>
+
+<style>
+#loadingOverlay{
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.7);
+  display:flex; justify-content:center; align-items:center;
+  z-index:100; visibility:hidden; opacity:0; transition:opacity 0.3s;
+}
+#loadingOverlay.show{visibility:visible; opacity:1;}
+
+.phone-loader{
+  animation: floatPhone 3s ease-in-out infinite;
+}
+@keyframes floatPhone{
+  0% {transform: translateY(0);}
+  50% {transform: translateY(-20px);}
+  100% {transform: translateY(0);}
+}
+</style>
+
+<!-- Navbar -->
+<div class="navbar">
+  <h1>Legit Media SMS</h1>
+  <div>
+    <a href="#hero">Home</a>
+    <a href="#info">Services</a>
+    <a href="login.html" onclick="showLoader()">Login</a>
+    <a href="register.html" onclick="showLoader()">Register</a>
+  </div>
+</div>
+
+<!-- Hero Section -->
+<div class="hero" id="hero">
+  <div class="hero-content">
+    <h2>Reliable SMS Reselling & Social Accounts</h2>
+    <p>Send messages instantly, manage campaigns, and purchase social accounts with ease. Trusted by businesses and individuals across the globe.</p>
+    <a href="register.html" class="btn" onclick="showLoader()">Get Started</a>
+    <a href="login.html" class="btn" onclick="showLoader()">Login</a>
+  </div>
+</div>
+
+<!-- Info Section -->
+<div class="info-section" id="info">
+  <h3>Why Choose Us?</h3>
+  <p>We provide affordable SMS reselling, fast delivery, secure transactions, and an easy-to-use dashboard to manage your credits and track your usage.</p>
+  
+  <div class="cards">
+    <div class="card"><img src="https://img.icons8.com/ios-filled/100/0052ff/credit-card.png"/><h4>Easy Wallet</h4><p>Top up your wallet with Paystack or Flutterwave for instant purchases.</p></div>
+    <div class="card"><img src="https://img.icons8.com/ios-filled/100/0052ff/shield.png"/><h4>Secure & Trusted</h4><p>Your funds and data are safe with our secure Supabase-backed platform.</p></div>
+    <div class="card"><img src="https://img.icons8.com/ios-filled/100/0052ff/rocket.png"/><h4>Fast Delivery</h4><p>Receive your SMS credits and social accounts quickly without delays.</p></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>&copy; 2026 Legit Media SMS. All Rights Reserved.</footer>
+
+<script>
+// Show page loader when action is triggered
+function showLoader(){
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('show');
+  // simulate delay for demo purposes (replace with real action)
+  setTimeout(()=>{ overlay.classList.remove('show'); }, 1500);
+}
+
+// Animate feature cards on scroll
+const cards = document.querySelectorAll('.card');
+window.addEventListener('scroll', ()=>{
+  const triggerBottom = window.innerHeight / 5 * 4;
+  cards.forEach(card=>{
+    const cardTop = card.getBoundingClientRect().top;
+    if(cardTop < triggerBottom) card.classList.add('show');
+  });
+});
+</script>
+
+</body>
+</html>lo

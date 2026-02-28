@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register - Legit Media SMS</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
+
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(-45deg,#141e30,#243b55,#0052ff,#00c6ff);
+  background-size:400% 400%;
+  animation:bgMove 10s ease infinite;
+}
+
+@keyframes bgMove{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+.card{
+  width:380px;
+  padding:35px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(15px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.4);
+  color:white;
+  position:relative;
+}
+
+.card h2{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.input-group{
+  margin-bottom:15px;
+  position:relative;
+}
+
+.input-group input{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  outline:none;
+  background:rgba(255,255,255,0.2);
+  color:white;
+  transition:0.3s;
+}
+
+.input-group input:focus{
+  background:rgba(255,255,255,0.35);
+}
+
+.toggle-eye{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:18px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#00e5ff;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 20px rgba(0,0,0,0.4);
+}
+
+.link{
+  text-align:center;
+  margin-top:15px;
+}
+
+.link a{
+  color:#00e5ff;
+  text-decoration:none;
+}
+
+.message{
+  text-align:center;
+  margin-top:12px;
+  color:#ff4d4d;
+  font-size:14px;
+}
+
+/* PHONE LOADER */
+#loadingOverlay{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.8);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border-radius:20px;
+  visibility:hidden;
+  opacity:0;
+  transition:0.3s;
+}
+
+#loadingOverlay.show{
+  visibility:visible;
+  opacity:1;
+}
+
+.phone{
+  font-size:60px;
+  animation:float 1.5s ease-in-out infinite;
+}
+
+@keyframes float{
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-20px);}
+  100%{transform:translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div id="loadingOverlay">
+    <div class="phone">📱</div>
+  </div>
+
+  <h2>Create Account</h2>
+
+  <div class="input-group">
+    <input type="text" id="username" placeholder="Username">
+  </div>
+
+  <div class="input-group">
+    <input type="text" id="fullname" placeholder="Full Name">
+  </div>
+
+  <div class="input-group">
+    <input type="email" id="email" placeholder="Email">
+  </div>
+
+  <div class="input-group">
+    <input type="password" id="password" placeholder="Password">
+    <span class="toggle-eye" onclick="togglePassword('password',this)">👁</span>
+  </div>
+
+  <div class="input-group">
+    <input type="password" id="confirmPassword" placeholder="Confirm Password">
+    <span class="toggle-eye" onclick="togglePassword('confirmPassword',this)">👁</span>
+  </div>
+
+  <button onclick="register()">Register</button>
+
+  <div class="message" id="message"></div>
+
+  <div class="link">
+    <a href="login.html">Already have an account? Login</a>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo";
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function showLoader(){
+  document.getElementById("loadingOverlay").classList.add("show");
+}
+
+function hideLoader(){
+  document.getElementById("loadingOverlay").classList.remove("show");
+}
+
+function togglePassword(fieldId, icon){
+  const input = document.getElementById(fieldId);
+  if(input.type === "password"){
+    input.type = "text";
+    icon.textContent = "🙈";
+  } else {
+    input.type = "password";
+    icon.textContent = "👁";
+  }
+}
+
+async function register(){
+  const username = document.getElementById("username").value;
+  const fullname = document.getElementById("fullname").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if(password !== confirmPassword){
+    document.getElementById("message").innerText = "Passwords do not match!";
+    return;
+  }
+
+  showLoader();
+
+  const { data, error } = await client.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  if(error){
+    hideLoader();
+    document.getElementById("message").innerText = error.message;
+    return;
+  }
+
+  // Create profile table entry
+  await client.from("profiles").insert([{
+    id: data.user.id,
+    username: username,
+    full_name: fullname,
+    email: email,
+    wallet_balance: 0,
+    is_admin: false
+  }]);
+
+  setTimeout(()=>{
+    hideLoader();
+    document.getElementById("message").style.color="lightgreen";
+    document.getElementById("message").innerText="Account created successfully!";
+    setTimeout(()=>{window.location.href="login.html";},1500);
+  },3000);
+}
+</script>
+
+</body>
+</html>
