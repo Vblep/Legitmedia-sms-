@@ -6,7 +6,7 @@
     <title>Top Up Wallet - Legit Media SMS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
@@ -48,7 +48,25 @@
                     <div class="mt-1.5 relative">
                         <span class="absolute left-5 top-4 font-black text-indigo-600 text-lg">₦</span>
                         <input type="number" id="amount" placeholder="Min. 500" 
-                            class="w-full p-4 pl-10 bg-slate-50 border border-slate-200 rounded-2xl font-black text-lg outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm">
+                            class="w-full p-4 pl-10 bg-slate-50 border border-slate-200 rounded-2xl font-black text-lg outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
+                            oninput="updateFeeDisplay()">
+                    </div>
+                </div>
+
+                <!-- Fee Breakdown -->
+                <div id="fee-breakdown" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm">
+                    <div class="flex justify-between py-1">
+                        <span class="text-slate-600">Deposit Amount:</span>
+                        <span id="deposit-amount" class="font-semibold">₦0</span>
+                    </div>
+                    <div class="flex justify-between py-1">
+                        <span class="text-slate-600">Transaction Fee:</span>
+                        <span id="fee-amount" class="font-semibold text-amber-600">₦20</span>
+                    </div>
+                    <div class="border-t border-slate-300 my-2"></div>
+                    <div class="flex justify-between py-1 font-bold">
+                        <span>Total to Pay:</span>
+                        <span id="total-amount" class="text-indigo-600">₦0</span>
                     </div>
                 </div>
 
@@ -59,13 +77,14 @@
                 </div>
             </div>
 
-            <button id="payBtn" onclick="payWithFlutterwave()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-slate-800 btn-active transition-all">
+            <button id="payBtn" onclick="payWithPaystack()" 
+                    class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-slate-800 btn-active transition-all">
                 Authorize Payment
             </button>
 
             <div class="flex items-center justify-center gap-4 pt-2 opacity-40 grayscale">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" class="h-4">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Verified by Flutterwave</span>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Secured by Paystack</span>
             </div>
         </div>
 
@@ -79,133 +98,149 @@
             </div>
         </div>
     </main>
+<script>
+    const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo"; 
+    const PS_PUB_KEY = "pk_live_e10699c7e9357032be0762dd2ff5fcad0b9976a8";
 
-    <script>
-        // Supabase Configuration
-        const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo"; 
+    const sb = supabase.createClient(SB_URL, SB_KEY);
+    let userProfile = null;
+    let currentUserData = null;
+    const TRANSACTION_FEE = 20;
+
+    async function init() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) { 
+            window.location.href = 'login.html'; 
+            return; 
+        }
+        currentUserData = user;
+
+        const { data: profile, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
+        if (error || !profile) return;
         
-        // Flutterwave Configuration (Ensure you update with your Live key when ready)
-        const FLW_PUB_KEY = "FLWPUBK_TEST-9599e7eead82c5134f4f57e4676f0172-X";
+        userProfile = profile;
+        document.getElementById('current-balance').innerText = 
+            "₦" + Number(profile.wallet_balance || 0).toLocaleString('en-NG', {minimumFractionDigits: 2});
+        
+        const displayName = profile.full_name || profile.username || user.email || "User";
+        document.getElementById('user-initials').innerText = displayName.substring(0, 2).toUpperCase();
+    }
 
-        const sb = supabase.createClient(SB_URL, SB_KEY);
-        let userProfile = null;
-        let currentUserData = null;
+    function setAmount(val) {
+        document.getElementById('amount').value = val;
+        updateFeeDisplay();
+    }
 
-        // Initialize user session and profile
-        async function init() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (!user) { window.location.href = 'login.html'; return; }
-            currentUserData = user;
+    function updateFeeDisplay() {
+        const amountInput = document.getElementById('amount');
+        const feeBreakdown = document.getElementById('fee-breakdown');
+        const depositEl = document.getElementById('deposit-amount');
+        const feeEl = document.getElementById('fee-amount');
+        const totalEl = document.getElementById('total-amount');
 
-            const { data: profile, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
-            if (error || !profile) {
-                console.error("Profile not found:", error);
-                return;
+        const amount = parseFloat(amountInput.value) || 0;
+
+        if (amount >= 500) {
+            const total = amount + TRANSACTION_FEE;
+            feeBreakdown.classList.remove('hidden');
+            depositEl.textContent = `₦${amount.toLocaleString()}`;
+            feeEl.textContent = `₦${TRANSACTION_FEE}`;
+            totalEl.textContent = `₦${total.toLocaleString()}`;
+        } else {
+            feeBreakdown.classList.add('hidden');
+        }
+    }
+
+    function generateReference() {
+        return 'LM-' + currentUserData.id.substring(0, 5) + '-' + Date.now();
+    }
+
+    function payWithPaystack() {
+        const amountField = document.getElementById('amount');
+        let depositAmount = parseFloat(amountField.value);
+        const btn = document.getElementById('payBtn');
+        
+        if (!depositAmount || depositAmount < 500) {
+            alert("The minimum deposit allowed is ₦500.");
+            return;
+        }
+
+        const totalAmount = depositAmount + TRANSACTION_FEE;
+        btn.disabled = true;
+        btn.innerText = "OPENING SECURE GATEWAY...";
+
+        const handler = PaystackPop.setup({
+            key: PS_PUB_KEY,
+            email: currentUserData.email,
+            amount: Math.floor(totalAmount * 100),
+            currency: "NGN",
+            ref: generateReference(),
+            callback: function(response) {
+                btn.innerText = "CREDITING WALLET...";
+                // We pass 'response' which contains the reference
+                handlePaymentSuccess(response.reference, depositAmount);
+            },
+            onClose: function() {
+                btn.disabled = false;
+                btn.innerText = "Authorize Payment";
             }
-            
-            userProfile = profile;
-            document.getElementById('current-balance').innerText = "₦" + Number(profile.wallet_balance || 0).toLocaleString('en-NG', {minimumFractionDigits: 2});
-            
-            const displayName = profile.full_name || profile.username || user.email;
-            document.getElementById('user-initials').innerText = displayName.substring(0, 2).toUpperCase();
+        });
+        handler.openIframe();
+    }
+
+    async function handlePaymentSuccess(reference, depositAmount) {
+    try {
+        console.log("Processing transaction for ref:", reference);
+
+        // 1. Log transaction into Supabase
+        // I removed columns not in your screenshot and focused on what we need
+        const { error: txError } = await sb.from('transactions').insert([{
+            user_id: currentUserData.id,
+            amount: parseFloat(depositAmount),
+            fee: parseFloat(TRANSACTION_FEE), // This column is added by the SQL above
+            type: 'Deposit',
+            status: 'success',
+            reference: reference, // This column is added by the SQL above
+            description: "Wallet Top-up via Paystack. Ref: " + reference
+        }]);
+
+        if (txError) {
+            console.error("Supabase Insert Error:", txError.message);
+            throw txError;
         }
 
-        // Helper to set quick amounts
-        function setAmount(val) {
-            document.getElementById('amount').value = val;
+        // 2. Update Profile balance
+        const { data: profile } = await sb.from('profiles')
+            .select('wallet_balance')
+            .eq('id', currentUserData.id)
+            .single();
+
+        const currentBalance = parseFloat(profile.wallet_balance || 0);
+        const newBalance = currentBalance + parseFloat(depositAmount);
+
+        const { error: updateError } = await sb.from('profiles')
+            .update({ wallet_balance: newBalance })
+            .eq('id', currentUserData.id);
+
+        if (updateError) {
+            console.error("Balance Update Error:", updateError.message);
+            throw updateError;
         }
 
-        // Flutterwave Payment Integration
-        function payWithFlutterwave() {
-            const amountField = document.getElementById('amount');
-            const amount = parseFloat(amountField.value);
-            const btn = document.getElementById('payBtn');
-            
-            if (!amount || amount < 500) {
-                alert("The minimum deposit allowed is ₦500.");
-                return;
-            }
+        alert("✅ Success! Your wallet has been credited with ₦" + depositAmount.toLocaleString());
+        window.location.href = "dashboard.html";
 
-            btn.disabled = true;
-            btn.innerText = "OPENING SECURE GATEWAY...";
+    } catch (e) {
+        console.error("Full Error Process:", e);
+        alert("Payment successful, but record failed.\nError: " + (e.message || "Schema mismatch"));
+        // Don't redirect immediately so you can read the error
+    }
+}
 
-            FlutterwaveCheckout({
-                public_key: FLW_PUB_KEY,
-                tx_ref: "LM-DEP-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
-                amount: amount,
-                currency: "NGN",
-                payment_options: "card, banktransfer, ussd",
-                customer: {
-                    email: currentUserData.email,
-                    name: userProfile.full_name || "Legit Media User",
-                },
-                customizations: {
-                    title: "Legit Media SMS",
-                    description: "Wallet Funding Service",
-                    logo: "https://img.icons8.com/ios-filled/100/4f46e5/rocket.png",
-                },
-                callback: async function (response) {
-                    btn.innerText = "VERIFYING & CREDITING...";
-                    
-                    if (response.status === "successful" || response.status === "completed") {
-                        
-                        // 1. Log the transaction to the NEW transactions table
-                        // This table powers the dashboard's "Financial Records" and "Lifetime Funding"
-                        const { error: txError } = await sb.from('transactions').insert([{
-                            user_id: currentUserData.id,
-                            amount: amount,
-                            type: 'Deposit',
-                            status: 'success',
-                            description: 'Wallet funding via Flutterwave'
-                        }]);
 
-                        if (txError) {
-                            console.error("Error logging transaction:", txError);
-                        }
+    window.onload = init;
+</script>
 
-                        // 2. Fetch the most recent balance from the database
-                        const { data: latestProfile, error: fetchError } = await sb.from('profiles')
-                            .select('wallet_balance')
-                            .eq('id', currentUserData.id)
-                            .single();
-
-                        if (fetchError) {
-                            console.error("Error fetching balance:", fetchError);
-                            return;
-                        }
-
-                        // 3. Calculate and Update the Wallet Balance
-                        const currentWallet = Number(latestProfile.wallet_balance || 0);
-                        const updatedWallet = currentWallet + amount;
-
-                        const { error: updateErr } = await sb.from('profiles')
-                            .update({ wallet_balance: updatedWallet })
-                            .eq('id', currentUserData.id);
-
-                        if (!updateErr) {
-                            alert(`Success! ₦${amount.toLocaleString()} has been added to your wallet.`);
-                            window.location.href = "dashboard.html";
-                        } else {
-                            console.error("Balance Update Error:", updateErr);
-                            alert("Payment confirmed. Redirecting to your dashboard to refresh balance.");
-                            window.location.href = "dashboard.html";
-                        }
-                    } else {
-                        alert("The payment was not successful. Please try again.");
-                        btn.disabled = false;
-                        btn.innerText = "Authorize Payment";
-                    }
-                },
-                onclose: function() {
-                    btn.disabled = false;
-                    btn.innerText = "Authorize Payment";
-                }
-            });
-        }
-
-        // Run init on page load
-        window.onload = init;
-    </script>
 </body>
 </html>

@@ -1,259 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Legit Media SMS</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
-
-body{
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:linear-gradient(-45deg,#0f2027,#203a43,#2c5364,#0052ff);
-  background-size:400% 400%;
-  animation:bgMove 10s ease infinite;
-  padding:15px;
-}
-
-@keyframes bgMove{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
-
-.card{
-  width:100%;
-  max-width:380px;
-  padding:35px 25px;
-  border-radius:20px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(15px);
-  box-shadow:0 15px 35px rgba(0,0,0,0.3);
-  color:white;
-  position:relative;
-}
-
-.card h2{
-  text-align:center;
-  margin-bottom:25px;
-  font-size:22px;
-}
-
-.input-group{
-  margin-bottom:18px;
-  position:relative;
-}
-
-.input-group input{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  outline:none;
-  background:rgba(255,255,255,0.2);
-  color:white;
-  font-size:14px;
-}
-
-.input-group input:focus{
-  background:rgba(255,255,255,0.35);
-}
-
-.eye{
-  position:absolute;
-  right:12px;
-  top:50%;
-  transform:translateY(-50%);
-  cursor:pointer;
-  font-size:14px;
-  opacity:0.8;
-}
-
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  background:#00e5ff;
-  color:#000;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:5px;
-}
-
-button:hover{
-  opacity:0.9;
-}
-
-.link{
-  text-align:center;
-  margin-top:15px;
-  font-size:14px;
-}
-
-.link a{
-  color:#00e5ff;
-  text-decoration:none;
-}
-
-.message{
-  text-align:center;
-  margin-top:12px;
-  color:#ff4d4d;
-  font-size:14px;
-}
-
-#loadingOverlay{
-  position:absolute;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.8);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  border-radius:20px;
-  visibility:hidden;
-  opacity:0;
-  transition:0.3s;
-}
-
-#loadingOverlay.show{
-  visibility:visible;
-  opacity:1;
-}
-
-.phone{
-  font-size:55px;
-  animation:float 1.5s ease-in-out infinite;
-}
-
-@keyframes float{
-  0%{transform:translateY(0);}
-  50%{transform:translateY(-15px);}
-  100%{transform:translateY(0);}
-}
-
-@media(min-width:768px){
-  body{
-    background:#0f2027;
-  }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Legit Media SMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .shimmer { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
+        .input-style { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: white; transition: all 0.3s; }
+        .input-style:focus { border-color: #6366f1; border-width: 2px; outline: none; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+    </style>
 </head>
+<body class="min-h-screen flex items-center justify-center p-6">
 
-<body>
+    <div class="w-full max-w-md space-y-8 relative">
+        <div class="text-center space-y-2">
+            <div class="w-16 h-16 shimmer rounded-2xl mx-auto flex items-center justify-center shadow-2xl animate-float">
+                <span class="text-white font-black text-2xl">LM</span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight pt-4">Welcome Back</h1>
+            <p class="text-slate-400 text-sm font-medium uppercase tracking-[0.1em]">Secure Access — VI-HUB</p>
+        </div>
 
-<div class="card">
+        <div class="glass-card rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+            <div id="loadingOverlay" class="absolute inset-0 z-50 bg-slate-900/90 flex items-center justify-center hidden">
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest">Entering Dashboard...</p>
+                </div>
+            </div>
 
-  <div id="loadingOverlay">
-    <div class="phone">📱</div>
-  </div>
+            <div class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                    <input type="email" id="email" placeholder="name@example.com" 
+                        class="w-full p-4 rounded-2xl input-style font-semibold text-sm">
+                </div>
 
-  <h2>Welcome Back</h2>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center px-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
+                        <button onclick="forgotPassword()" class="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 uppercase tracking-widest">Reset Password?</button>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="password" placeholder="••••••••" 
+                            class="w-full p-4 rounded-2xl input-style font-semibold text-sm pr-12">
+                        <button onclick="togglePass('password')" class="absolute right-4 top-4 text-slate-500 hover:text-indigo-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2"/></svg>
+                        </button>
+                    </div>
+                </div>
 
-  <div class="input-group">
-    <input type="email" id="email" placeholder="Email">
-  </div>
+                <div class="flex items-center space-x-2 px-1">
+                    <input type="checkbox" id="remember" class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500">
+                    <label for="remember" class="text-xs font-bold text-slate-400 uppercase tracking-widest cursor-pointer">Stay Logged In</label>
+                </div>
 
-  <div class="input-group">
-    <input type="password" id="password" placeholder="Password">
-    <span class="eye" onclick="togglePassword()">👁</span>
-  </div>
+                <div id="message" class="text-center text-xs font-bold text-rose-500 hidden px-2 py-3 bg-rose-500/10 rounded-xl"></div>
 
-  <button onclick="login()">Login</button>
+                <button onclick="login()" class="w-full py-5 shimmer text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-500/20 active:scale-[0.98] transition-all">
+                    Unlock Dashboard
+                </button>
+            </div>
+        </div>
 
-  <div class="link">
-    <a href="#" onclick="forgotPassword()">Forgot Password?</a>
-  </div>
-
-  <div class="message" id="message"></div>
-
-  <div class="link">
-    <a href="register.html">Create Account</a>
-  </div>
-
-</div>
+        <p class="text-center text-slate-500 text-sm font-semibold">
+            New here? 
+            <a href="register.html" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-4 ml-1">Create an account</a>
+        </p>
+    </div>
 
 <script>
+// --- CONFIG ---
 const SUPABASE_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo";
+const EDGE_FUNCTION_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co/functions/v1/send-emails";
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function showLoader(){
-  document.getElementById("loadingOverlay").classList.add("show");
+// --- UTILITIES ---
+function togglePass(id) {
+    const input = document.getElementById(id);
+    input.type = input.type === "password" ? "text" : "password";
 }
 
-function hideLoader(){
-  document.getElementById("loadingOverlay").classList.remove("show");
+function showMsg(txt, isError = true) {
+    const el = document.getElementById("message");
+    el.innerText = txt;
+    el.classList.remove("hidden");
+    el.className = isError 
+        ? "text-center text-xs font-bold text-rose-500 px-2 py-3 bg-rose-500/10 rounded-xl block"
+        : "text-center text-xs font-bold text-emerald-500 px-2 py-3 bg-emerald-500/10 rounded-xl block";
 }
 
-function togglePassword(){
-  const password = document.getElementById("password");
-  password.type = password.type === "password" ? "text" : "password";
+// Send Login Notification Email
+async function sendLoginNotification(email, fullName = "User") {
+    try {
+        const deviceInfo = {
+            browser: navigator.userAgent,
+            os: navigator.platform,
+            time: new Date().toLocaleString(),
+            // IP can be added from server-side if needed
+        };
+
+        const response = await fetch(EDGE_FUNCTION_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({
+                type: "login",
+                email: email,
+                full_name: fullName,
+                deviceInfo: deviceInfo
+            })
+        });
+
+        if (response.ok) {
+            console.log("✅ Login notification sent successfully to:", email);
+        } else {
+            console.warn("Login notification response:", await response.text());
+        }
+    } catch (e) {
+        console.warn("⚠️ Login notification failed:", e.message);
+    }
 }
 
-async function login(){
-  showLoader();
+// --- CORE LOGIC ---
+async function login() {
+    const loader = document.getElementById("loadingOverlay");
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+    if (!email || !password) return showMsg("Credentials required.");
 
-  if(!email || !password){
-    hideLoader();
-    document.getElementById("message").innerText = "Please fill all fields.";
-    return;
-  }
+    loader.classList.remove("hidden");
+    
+    try {
+        const { error } = await client.auth.signInWithPassword({ email, password });
 
-  const { error } = await client.auth.signInWithPassword({
-    email,
-    password
-  });
+        if (error) {
+            loader.classList.add("hidden");
+            showMsg(error.message);
+        } else {
+            // Send Login Notification
+            sendLoginNotification(email);
 
-  hideLoader();
-
-  if(error){
-    document.getElementById("message").innerText = error.message;
-  } else {
-    window.location.href = "dashboard.html";
-  }
+            showMsg("Login successful! 🎉", false);
+            
+            // Small delay then redirect
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 1200);
+        }
+    } catch (err) {
+        loader.classList.add("hidden");
+        showMsg("Network error. Please try again.");
+    }
 }
 
-async function forgotPassword(){
-  const email = document.getElementById("email").value.trim();
+async function forgotPassword() {
+    const email = document.getElementById("email").value.trim();
+    if (!email) return showMsg("Enter your email to receive a reset link.");
 
-  if(!email){
-    document.getElementById("message").innerText = "Enter your email first.";
-    return;
-  }
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/reset-password.html"
+    });
 
-  const { error } = await client.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + "/reset-password.html"
-  });
-
-  if(error){
-    document.getElementById("message").innerText = error.message;
-  } else {
-    document.getElementById("message").style.color = "#00ffae";
-    document.getElementById("message").innerText =
-      "Password reset link sent to your email.";
-  }
+    if (error) showMsg(error.message);
+    else showMsg("Instructions sent to your email!", false);
 }
 
-async function checkUser(){
-  const { data } = await client.auth.getUser();
-  if(data.user){
-    window.location.href = "dashboard.html";
-  }
+// --- SESSION CLEANER ---
+async function initLogin() {
+    await client.auth.signOut();
 }
 
-checkUser();
+initLogin();
 </script>
-
 </body>
 </html>

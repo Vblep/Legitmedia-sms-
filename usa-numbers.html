@@ -3,132 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USA Numbers - Legit Media</title>
+    <title>Legitmediasms - Premium Temp Mail</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .service-card { transition: all 0.2s ease; border: 1px solid #f1f5f9; cursor: pointer; }
-        .service-card:hover { transform: translateY(-3px); border-color: #6366f1; background: #fff; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .loader { border-top-color: #6366f1; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .shimmer { background: linear-gradient(90deg, #6366f1, #a855f7); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .modal-overlay { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-up { animation: slideUp 0.4s ease-out forwards; }
     </style>
 </head>
-<body>
+<body class="min-h-screen text-slate-800 pb-20">
 
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5" stroke-linecap="round"/></svg></a>
-            <h1 class="text-xl font-black text-slate-900">USA <span class="text-indigo-600">ONLY</span></h1>
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
+                <div class="w-8 h-8 shimmer rounded-lg flex items-center justify-center shadow-lg">
+                    <span class="text-white font-bold text-xs">LM</span>
+                </div>
+                <span class="font-extrabold text-xl tracking-tighter uppercase">LEGITMEDIA<span class="text-indigo-600">SMS</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p id="nav-balance" class="text-sm font-extrabold text-indigo-600 tracking-tighter">₦0.00</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Wallet</p>
+                </div>
+                <div id="user-initials" class="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs uppercase shadow-sm">--</div>
+            </div>
         </div>
-        <div id="balance-badge" class="bg-indigo-600 text-white px-4 py-1.5 rounded-full font-bold text-xs uppercase">₦...</div>
     </nav>
 
-    <main class="max-w-6xl mx-auto p-6">
-        <div class="mb-8">
-            <input type="text" id="searchBox" onkeyup="filterList()" placeholder="Search WhatsApp, Telegram, etc..." class="w-full p-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+    <main class="max-w-lg mx-auto px-4 mt-6 space-y-6">
+        <div class="glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100/40 space-y-6">
+            <div class="text-center">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Email Engine</h2>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Legitmediasms Email Generator• ₦10.00 per email</p>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6 relative">
+                <p id="emailDisplay" class="text-indigo-600 font-black text-lg break-all pr-12">System Ready</p>
+                <button onclick="copyCurrentEmail()" class="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-indigo-600 active:scale-90 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2-2v8a2 2 0 002 2z" /></svg>
+                </button>
+            </div>
+
+            <button id="genBtn" onclick="handleMailOrder()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all">
+                Generate New Email
+            </button>
         </div>
 
-        <div id="status-area" class="flex flex-col items-center justify-center py-20">
-            <div class="loader w-10 h-10 border-4 border-slate-200 rounded-full mb-4"></div>
-            <p id="loading-text" class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Connecting to SMS Bus...</p>
+        <div id="inbox-area" class="hidden glass-card rounded-[2.5rem] p-8 shadow-xl animate-up border-2 border-emerald-100">
+            <div class="flex justify-between items-center mb-6">
+                <label class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Active Inbox</label>
+                <div class="flex items-center gap-2 bg-emerald-50 px-3 py-1 rounded-full">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span class="text-[9px] font-black text-emerald-600 uppercase">Live Sync</span>
+                </div>
+            </div>
+            <div id="inbox-list" class="space-y-3">
+                <p class="text-center text-xs text-slate-400 italic py-4">Checking for mail...</p>
+            </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 hidden" id="usaGrid"></div>
+        <div class="glass-card rounded-[2.5rem] p-8 shadow-xl">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">Mystery Box (Saved History)</label>
+            <div id="history-list" class="space-y-3">
+                <p class="text-center text-[10px] text-slate-400 py-4 uppercase">Syncing Archives...</p>
+            </div>
+        </div>
     </main>
 
-    <script>
-        // --- SETTINGS ---
-        const PROXY_URL = "https://sms-gateway.ebuvick0.workers.dev/"; // Paste your Worker URL here
-        const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo";
-        const PROFIT_PERCENTAGE = 1.5; // Example: 50% profit markup
-        const NAIRA_RATE = 1000; // Adjust based on your SMS Bus currency (Rubles/USD to Naira)
+    <div id="msg-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-6 modal-overlay">
+        <div class="bg-white rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl animate-up max-h-[85vh] flex flex-col">
+            <div class="flex-1 overflow-y-auto">
+                <h3 id="modal-subject" class="text-xl font-black text-slate-900 leading-tight">Subject</h3>
+                <p id="modal-from" class="text-[10px] font-bold text-indigo-600 mt-2 tracking-widest uppercase">FROM: ...</p>
+                <div id="modal-body" class="mt-6 bg-slate-50 p-5 rounded-3xl text-sm text-slate-600 leading-relaxed border border-slate-100 whitespace-pre-wrap"></div>
+            </div>
+            <button onclick="document.getElementById('msg-modal').classList.add('hidden')" class="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px]">Close Reader</button>
+        </div>
+    </div>
+
+<script>
+const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo";
+const COST = 10.00;
+
+const sb = supabase.createClient(SB_URL, SB_KEY);
+let userData, currentBalance, activeToken = null, activeEmailId = null, syncInterval = null;
+
+async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return window.location.href = 'login.html';
+    userData = session.user;
+
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', userData.id).single();
+    if (profile) {
+        currentBalance = parseFloat(profile.wallet_balance || 0);
+        const nameSource = profile.full_name || profile.username || userData.email || "??";
+        document.getElementById('user-initials').innerText = nameSource.substring(0,2).toUpperCase();
+        document.getElementById('nav-balance').innerText = "₦" + currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+    }
+    loadDbHistory();
+}
+
+async function handleMailOrder() {
+    if (currentBalance < COST) return alert("Insufficient balance.");
+    
+    // UI RESET: Wipe active inbox on new click
+    if(syncInterval) clearInterval(syncInterval);
+    document.getElementById('inbox-area').classList.add('hidden');
+    document.getElementById('inbox-list').innerHTML = `<p class="text-center text-xs text-slate-400 italic py-4">Checking for mail...</p>`;
+    activeToken = null; 
+
+    const btn = document.getElementById('genBtn');
+    btn.disabled = true;
+    btn.innerText = "AUTHENTICATING...";
+
+    try {
+        const doms = await fetch('https://api.mail.tm/domains').then(r => r.json());
+        const domain = doms['hydra:member'][0].domain;
+        const email = `LMS_${Math.random().toString(36).substring(2, 7)}@${domain}`;
+        const pass = 'LMS2026';
+        const refId = 'LMS-' + Date.now().toString().slice(-8);
         
-        const sb = supabase.createClient(SB_URL, SB_KEY);
-        let allServices = [];
+        await fetch('https://api.mail.tm/accounts', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({address: email, password: pass})
+        });
+        
+        const tok = await fetch('https://api.mail.tm/token', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({address: email, password: pass})
+        }).then(r => r.json());
+        activeToken = tok.token;
 
-        async function init() {
-            // 1. Get User Balance
-            const { data: { user } } = await sb.auth.getUser();
-            const { data: profile } = await sb.from('profiles').select('wallet_balance').eq('id', user.id).single();
-            document.getElementById('balance-badge').innerText = "₦" + (profile?.wallet_balance || 0).toLocaleString();
+        // DB Updates: Profiles & Dedicated temp_emails Table
+        currentBalance -= COST;
+        await sb.from('profiles').update({ wallet_balance: currentBalance }).eq('id', userData.id);
+        
+        // Save to New Table: temp_emails
+        const { data: row, error: rowErr } = await sb.from('temp_emails').insert([{ 
+            user_id: userData.id, 
+            email_address: email,
+            reference_id: refId
+        }]).select().single();
+        
+        if (rowErr) throw rowErr;
+        activeEmailId = row.id;
 
-            // 2. SMART FETCH - This avoids "Action not found"
-            try {
-                // We try the standard format first
-                let response = await fetch(`${PROXY_URL}?action=getPrices&country=12`);
-                let text = await response.text();
+        // Log Transaction
+        await sb.from('transactions').insert([{
+            user_id: userData.id, 
+            amount: -COST, 
+            type: 'Temp Mail', 
+            description: `Generated: ${email}`, 
+            status: 'Completed', 
+            service_category: 'utility', 
+            reference_id: refId
+        }]);
 
-                // If the worker returns "Action not found", we try an alternative URL format
-                if (text.includes("Action not found")) {
-                    console.log("Retrying with alternative URL format...");
-                    response = await fetch(`${PROXY_URL}/getPrices/12`); 
-                    text = await response.text();
-                }
+        document.getElementById('nav-balance').innerText = "₦" + currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('emailDisplay').innerText = email;
+        document.getElementById('inbox-area').classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerText = "Generate New Email";
+        
+        loadDbHistory();
+        startInboxSync();
+    } catch (e) {
+        alert("Provisioning Error: " + e.message);
+        btn.disabled = false;
+    }
+}
 
-                const data = JSON.parse(text);
-                const usaData = data['12'] || data['1'] || data['0'] || data; // Flexible key matching
+function startInboxSync() {
+    syncInterval = setInterval(async () => {
+        if (!activeToken) return clearInterval(syncInterval);
+        try {
+            const res = await fetch('https://api.mail.tm/messages', {
+                headers: {'Authorization': `Bearer ${activeToken}`}
+            }).then(r => r.json());
+            const msgs = res['hydra:member'];
+            
+            if (msgs && msgs.length > 0) {
+                const fullMsg = await fetch(`https://api.mail.tm/messages/${msgs[0].id}`, {
+                    headers: {'Authorization': `Bearer ${activeToken}`}
+                }).then(r => r.json());
 
-                allServices = Object.keys(usaData).map(key => {
-                    const rawCost = usaData[key].cost || 0;
-                    // Calculate: (Original Cost * Conversion Rate) * Profit Markup
-                    const finalPrice = Math.ceil((rawCost * NAIRA_RATE) * PROFIT_PERCENTAGE);
-
-                    return {
-                        code: key,
-                        name: key.toUpperCase(),
-                        price: finalPrice,
-                        stock: usaData[key].count || 0
-                    };
-                }).filter(s => s.stock > 0);
-
-                render(allServices);
-            } catch (err) {
-                console.error("Fetch Error:", err);
-                document.getElementById('status-area').innerHTML = `
-                    <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100 text-center">
-                        <p class="text-rose-600 font-black text-xs uppercase mb-2">Connection Error</p>
-                        <p class="text-slate-500 text-xs">${err.message}</p>
-                        <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-rose-600 text-white rounded-xl text-[10px] font-bold">RETRY CONNECTION</button>
+                document.getElementById('inbox-list').innerHTML = `
+                    <div onclick="showModal('${fullMsg.subject}', '${fullMsg.from.address}', \`${fullMsg.text}\`)" class="p-5 bg-indigo-600 text-white rounded-[2rem] cursor-pointer shadow-xl animate-up">
+                        <p class="text-[9px] font-black uppercase opacity-70 mb-1">Incoming Mail</p>
+                        <p class="text-sm font-bold truncate">${fullMsg.subject || 'New Message'}</p>
+                        <p class="text-[10px] mt-2 underline font-bold uppercase">Open Reader</p>
                     </div>
                 `;
+
+                // Update New Table: Save message body and subject
+                await sb.from('temp_emails').update({
+                    body: fullMsg.text,
+                    subject: fullMsg.subject,
+                    sender: fullMsg.from.address
+                }).eq('id', activeEmailId);
+                
+                loadDbHistory();
             }
-        }
+        } catch (e) {}
+    }, 5000);
+}
 
-        function render(list) {
-            const grid = document.getElementById('usaGrid');
-            const status = document.getElementById('status-area');
-            
-            grid.innerHTML = list.map(s => `
-                <div onclick="purchase('${s.code}', ${s.price})" class="service-card bg-white p-5 rounded-[2rem] shadow-sm">
-                    <p class="text-[9px] font-black text-indigo-500 uppercase mb-1">${s.code}</p>
-                    <h4 class="font-bold text-slate-800 text-[13px] truncate mb-3">${s.name}</h4>
+async function loadDbHistory() {
+    // Fetch from dedicated temp_emails table
+    const { data } = await sb.from('temp_emails').select('*').eq('user_id', userData.id).order('created_at', { ascending: false }).limit(10);
+    if (data) {
+        document.getElementById('history-list').innerHTML = data.map(item => {
+            const hasMail = (item.body && item.body !== 'Waiting for incoming mail...');
+            return `
+                <div class="p-5 bg-white border border-slate-100 rounded-[2.5rem] flex flex-col gap-4 shadow-sm">
                     <div class="flex justify-between items-center">
-                        <span class="text-xs font-black text-slate-900">₦${s.price.toLocaleString()}</span>
-                        <span class="text-[8px] bg-slate-100 px-2 py-0.5 rounded text-slate-400 font-bold uppercase">${s.stock} pcs</span>
+                        <div class="w-2/3 truncate font-extrabold text-[11px] text-slate-900">${item.email_address}</div>
+                        <button onclick="navigator.clipboard.writeText('${item.email_address}'); alert('Copied')" class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black uppercase">Copy</button>
                     </div>
+                    ${hasMail ? `
+                        <button onclick="showModal('${item.subject || 'Saved Message'}', '${item.sender || 'Unknown'}', \`${item.body}\`)" class="w-full py-3 bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-emerald-100">
+                            Read Archived Message
+                        </button>
+                    ` : `
+                        <div class="py-2 px-4 border border-dashed border-slate-200 rounded-xl text-center text-[9px] font-bold text-slate-300 uppercase">No message received</div>
+                    `}
                 </div>
-            `).join('');
+            `;
+        }).join('');
+    }
+}
 
-            status.classList.add('hidden');
-            grid.classList.remove('hidden');
-        }
+function showModal(sub, from, body) {
+    document.getElementById('modal-subject').innerText = sub;
+    document.getElementById('modal-from').innerText = "FROM: " + from;
+    document.getElementById('modal-body').innerText = body;
+    document.getElementById('msg-modal').classList.remove('hidden');
+    document.getElementById('msg-modal').classList.add('flex');
+}
 
-        function filterList() {
-            const q = document.getElementById('searchBox').value.toLowerCase();
-            const filtered = allServices.filter(s => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q));
-            render(filtered);
-        }
+function copyCurrentEmail() {
+    const email = document.getElementById('emailDisplay').innerText;
+    if (email !== "System Ready") {
+        navigator.clipboard.writeText(email);
+        alert("Address copied!");
+    }
+}
 
-        async function purchase(code, price) {
-            if(!confirm(`Buy ${code} USA number for ₦${price.toLocaleString()}?`)) return;
-            alert(`Contacting Proxy... Purchasing ${code}`);
-            // Logic for purchase goes here
-        }
-
-        init();
-    </script>
+window.onload = init;
+</script>
 </body>
 </html>

@@ -2,120 +2,410 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity History - Legit Media</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Activity Log - Legit Media</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .tab-active { color: #4f46e5; border-bottom: 3px solid #4f46e5; }
-        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .tab-active { color: #4f46e5; border-bottom: 3px solid #4f46e5; font-weight: 800; }
+        .service-active { background-color: #4f46e5 !important; color: white !important; box-shadow: 0 8px 16px -6px #4f46e5; }
+        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-transform: uppercase; tracking-wider; }
+        .modal-overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        @keyframes pulse-indigo { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+        .animate-pulse-custom { animation: pulse-indigo 1.5s cubic-bezier(.4, 0, .6, 1) infinite; }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="pb-32 bg-slate-50">
 
-    <nav class="sticky top-0 z-50 bg-white border-b px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-all">
-                <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-            <h1 class="text-xl font-black text-slate-900 uppercase">Activity <span class="text-indigo-600">Log</span></h1>
-        </div>
-    </nav>
-
-    <main class="max-w-4xl mx-auto p-4 md:p-8">
-        <div class="flex border-b border-slate-200 mb-8">
-            <button onclick="switchTab('orders')" id="tab-orders" class="flex-1 py-4 text-sm font-black uppercase tracking-widest text-slate-400 tab-active">Orders</button>
-            <button onclick="switchTab('funds')" id="tab-funds" class="flex-1 py-4 text-sm font-black uppercase tracking-widest text-slate-400">Funding</button>
-        </div>
-
-        <div id="section-orders" class="space-y-4">
-            <div id="orders-list" class="space-y-4">
-                <div class="text-center py-20 text-slate-400 text-sm font-bold">Loading your orders...</div>
+    <div id="receipt-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 modal-overlay">
+        <div class="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl">
+            <div id="receipt-content" class="p-6 bg-white relative">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-lg font-black tracking-tighter uppercase text-slate-900">LEGIT<span class="text-indigo-600">MEDIA</span></h2>
+                        <p class="text-[8px] font-bold text-slate-400 tracking-widest uppercase">Transaction Voucher</p>
+                    </div>
+                    <div class="text-right">
+                        <p id="r-date" class="text-[10px] font-bold text-slate-900"></p>
+                        <p id="r-ref" class="text-[9px] font-black text-indigo-600 uppercase"></p>
+                    </div>
+                </div>
+                <div class="space-y-3 border-y border-dashed border-slate-200 py-4 my-4">
+                    <div class="flex justify-between text-xs">
+                        <span class="font-bold text-slate-400 uppercase text-[9px]">Service</span>
+                        <span id="r-service" class="font-black text-slate-800 text-right max-w-[150px] truncate"></span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="font-bold text-slate-400 uppercase text-[9px]">Target Number</span>
+                        <span id="r-target" class="font-bold text-indigo-600 truncate max-w-[150px]"></span>
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl text-center border border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-0.5">Amount Paid</p>
+                    <h3 id="r-amount" class="text-2xl font-black text-slate-900 tracking-tighter"></h3>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 flex gap-2">
+                <button id="downloadBtn" class="flex-1 py-3.5 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-[9px] shadow-md">Download</button>
+                <button onclick="closeReceipt()" class="px-4 py-3.5 bg-white text-slate-500 rounded-xl font-black uppercase text-[9px] border border-slate-200">Close</button>
             </div>
         </div>
+    </div>
 
-        <div id="section-funds" class="space-y-4 hidden">
-            <div id="funds-list" class="space-y-4">
-                </div>
+    <header class="bg-white border-b sticky top-0 z-50 px-4 py-4 shadow-sm">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='dashboard.html'" class="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                    <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <h1 class="text-lg font-black text-slate-900 tracking-tight">Order Tracking</h1>
+            </div>
+            <button onclick="loadOrders()" class="p-2 text-indigo-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="bg-slate-900 py-3 px-4 sticky top-[61px] z-40 shadow-md">
+        <div class="max-w-md mx-auto flex justify-between gap-1 overflow-x-auto scrollbar-hide">
+            <button data-type="sms" class="srv-tab flex-1 text-center py-2.5 rounded-xl text-[9px] uppercase font-extrabold tracking-wider bg-slate-800 text-slate-400 transition-all srv-tab-active service-active">📱 SMS History</button>
+            <button data-type="email" class="srv-tab flex-1 text-center py-2.5 rounded-xl text-[9px] uppercase font-extrabold tracking-wider bg-slate-800 text-slate-400 transition-all">✉️ Temp Emails</button>
+            <button data-type="boosting" class="srv-tab flex-1 text-center py-2.5 rounded-xl text-[9px] uppercase font-extrabold tracking-wider bg-slate-800 text-slate-400 transition-all">🚀 Boosting</button>
+        </div>
+    </div>
+
+    <div class="bg-white border-b sticky top-[113px] z-30 shadow-sm overflow-x-auto scrollbar-hide">
+        <div class="max-w-md mx-auto flex justify-between px-2">
+            <button data-status="All" class="st-tab px-4 py-3 text-[9px] font-bold uppercase tracking-wider text-slate-400 tab-active">All Logs</button>
+            <button data-status="Processing" class="st-tab px-4 py-3 text-[9px] font-bold uppercase tracking-wider text-slate-400">Live Active</button>
+            <button data-status="Completed" class="st-tab px-4 py-3 text-[9px] font-bold uppercase tracking-wider text-slate-400">Completed</button>
+            <button data-status="Canceled" class="st-tab px-4 py-3 text-[9px] font-bold uppercase tracking-wider text-slate-400">Canceled</button>
+        </div>
+    </div>
+
+    <main class="max-w-md mx-auto px-4 mt-4 space-y-4">
+        <input type="text" id="orderSearch" placeholder="Search references or description..." class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-xs font-bold outline-none shadow-sm focus:border-indigo-500 transition-all">
+
+        <div id="sync-loader" class="hidden p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center gap-2">
+            <div class="w-3.5 h-3.5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-[9px] font-black text-indigo-600 uppercase tracking-widest">Listening to live API streams...</span>
+        </div>
+
+        <div id="active-sessions-container" class="space-y-3"></div>
+
+        <div class="space-y-3">
+            <h3 class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-1">Purchased History Logs</h3>
+            <div id="history-cards-container" class="space-y-3"></div>
         </div>
     </main>
 
-    <script>
-        const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo";
-        const sb = supabase.createClient(SB_URL, SB_KEY);
+<script>
+const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo"; 
+const WORKER_URL = "https://broken-frog-1010.ebuvick0.workers.dev/";
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-        function switchTab(type) {
-            const isOrders = type === 'orders';
-            document.getElementById('section-orders').classList.toggle('hidden', !isOrders);
-            document.getElementById('section-funds').classList.toggle('hidden', isOrders);
-            document.getElementById('tab-orders').classList.toggle('tab-active', isOrders);
-            document.getElementById('tab-funds').classList.toggle('tab-active', !isOrders);
+let allOrders = [];
+let pollingLoops = {};
+let currentServiceType = 'sms';
+let currentStatusFilter = 'All';
+
+async function loadOrders() {
+    try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data, error } = await sb.from('transactions')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allOrders = data;
+        
+        applyFiltersAndRender();
+
+        // Sync and launch polling trackers for newly allocated items matching the stream
+        const activeAllocations = data.filter(o => 
+            (o.status === 'Processing' || o.status === 'Pending') && 
+            o.api_order_id && 
+            detectCategory(o) === 'sms'
+        );
+        
+        if (activeAllocations.length > 0) {
+            startHeartbeatPolling(activeAllocations);
+        }
+    } catch (e) { console.error(e); }
+}
+
+function detectCategory(order) {
+    if (order.service_category === 'sms' || (order.description && order.description.toLowerCase().includes('virtual no')) || (order.service_name && order.service_name.toLowerCase().includes('sms'))) return 'sms';
+    if (order.service_category === 'email' || (order.description && order.description.toLowerCase().includes('email'))) return 'email';
+    return 'boosting'; 
+}
+
+function applyFiltersAndRender() {
+    let globalSubset = allOrders.filter(o => detectCategory(o) === currentServiceType);
+    
+    // Separation structure rule mapping
+    let activeItems = globalSubset.filter(o => (o.status === 'Processing' || o.status === 'Pending') && currentServiceType === 'sms' && o.api_order_id);
+    let historicalItems = globalSubset.filter(o => !((o.status === 'Processing' || o.status === 'Pending') && currentServiceType === 'sms' && o.api_order_id));
+
+    if (currentStatusFilter !== 'All') {
+        historicalItems = historicalItems.filter(o => {
+            if (currentStatusFilter === 'Canceled') return o.status === 'Cancelled' || o.status === 'Canceled';
+            return o.status === currentStatusFilter;
+        });
+        activeItems = activeItems.filter(o => o.status === currentStatusFilter);
+    }
+
+    const searchVal = document.getElementById('orderSearch').value.toLowerCase();
+    if (searchVal) {
+        const textMatch = (o) => ((o.reference_id || '') + (o.service_name || '') + (o.description || '') + (o.recipient || '')).toLowerCase().includes(searchVal);
+        activeItems = activeItems.filter(textMatch);
+        historicalItems = historicalItems.filter(textMatch);
+    }
+
+    renderActiveHeroConsoles(activeItems);
+    renderHistoricalLogCards(historicalItems);
+}
+
+// ================= AREA 1: LIVE ACTIVE ALLOCATIONS CONTAINER =================
+function renderActiveHeroConsoles(items) {
+    const box = document.getElementById('active-sessions-container');
+    
+    // MATHEMATICAL REMOVAL: Wipes the entire node box out cleanly if there is no active thread
+    if (!items.length || currentServiceType !== 'sms') {
+        box.innerHTML = '';
+        return;
+    }
+
+    box.innerHTML = items.map(o => `
+        <div class="bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-3xl p-5 shadow-xl border border-indigo-500/20 space-y-4">
+            <div class="flex justify-between items-center border-b border-white/5 pb-3">
+                <div>
+                    <span class="text-[8px] uppercase tracking-widest font-black text-indigo-400 animate-pulse-custom">● Live SMS Session Active</span>
+                    <h4 class="text-xs font-bold text-slate-200 mt-0.5">${o.service_name || o.description || 'Virtual SMS Allocation'}</h4>
+                </div>
+                <div id="countdown-timer-${o.api_order_id}" class="text-[10px] font-black bg-indigo-500/20 px-2.5 py-1 rounded-lg text-indigo-300 animate-pulse">
+                    Monitoring...
+                </div>
+            </div>
+
+            <div class="space-y-1">
+                <span class="text-[8px] uppercase tracking-wider text-slate-400 font-extrabold block">Allocated Phone Number</span>
+                <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                    <span id="live-num-${o.api_order_id}" class="text-lg font-black text-white tracking-tight">${o.recipient || '--------'}</span>
+                    <button onclick="copyValueString('live-num-${o.api_order_id}')" class="text-[9px] font-black text-indigo-400 uppercase bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20">Copy No.</button>
+                </div>
+            </div>
+
+            <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex justify-between items-center">
+                <div>
+                    <span class="text-[8px] uppercase tracking-wider text-slate-400 block font-bold mb-0.5">Incoming Activation OTP</span>
+                    <div id="live-otp-${o.api_order_id}" class="text-2xl font-mono font-black tracking-widest text-indigo-400 animate-pulse">----</div>
+                </div>
+                <button onclick="copyValueString('live-otp-${o.api_order_id}')" class="px-3 py-2 text-[9px] font-black uppercase bg-indigo-600 rounded-lg text-white shadow-md">Copy OTP</button>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button onclick="terminateStreamAllocation('${o.api_order_id}', ${o.id}, ${Math.abs(o.amount)})" class="flex-1 py-3 rounded-xl bg-rose-600 text-white text-[9px] font-black uppercase tracking-widest transition-all">
+                    Cancel & Refund
+                </button>
+                <button onclick="viewReceipt(${JSON.stringify(o).replace(/'/g, "&apos;")})" class="px-3.5 py-3 bg-white/5 rounded-xl border border-white/10 text-[9px] font-black uppercase tracking-wider text-slate-300">
+                    Voucher
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ================= AREA 2: HISTORICAL LOG ENTRIES AND PREVIOUS PURCHASES =================
+function renderHistoricalLogCards(items) {
+    const container = document.getElementById('history-cards-container');
+    if (!items.length) {
+        container.innerHTML = `<div class="p-12 text-center bg-white border border-slate-100 rounded-3xl font-extrabold text-slate-300 uppercase text-[9px] tracking-widest">No Purchases Logged</div>`;
+        return;
+    }
+
+    container.innerHTML = items.map(o => {
+        const status = o.status || 'Pending';
+        let badgeStyle = "bg-slate-100 text-slate-500";
+        if (status === 'Completed' || status === 'Success') badgeStyle = "bg-emerald-50 text-emerald-600 border border-emerald-100";
+        if (status === 'Cancelled' || status === 'Canceled') badgeStyle = "bg-rose-50 text-rose-600 border border-rose-100";
+
+        let archivedOtp = o.otp_code || '';
+        if (!archivedOtp && o.metadata && typeof o.metadata === 'object') {
+            archivedOtp = o.metadata.otp || o.metadata.sms_code || '';
         }
 
-        async function loadHistory() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (!user) return;
-
-            // 1. Fetch Purchased Numbers (Orders)
-            const { data: orders } = await sb.from('purchased_numbers')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            const ordersCont = document.getElementById('orders-list');
-            ordersCont.innerHTML = orders?.length ? orders.map(o => `
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex justify-between items-center group hover:border-indigo-200 transition-all">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-[10px] font-black text-indigo-600 uppercase tracking-tighter">${o.service}</span>
-                            <span class="text-[10px] text-slate-300">•</span>
-                            <span class="text-[10px] text-slate-400 font-bold">${new Date(o.created_at).toLocaleDateString()}</span>
-                        </div>
-                        <h3 class="text-lg font-black text-slate-800">${o.number}</h3>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs font-black ${o.otp ? 'text-emerald-500' : 'text-amber-500 animate-pulse'}">
-                            ${o.otp || 'AWAITING SMS...'}
-                        </p>
-                        <p class="text-[9px] font-bold text-slate-300 uppercase mt-1">Status: ${o.otp ? 'Completed' : 'Active'}</p>
-                    </div>
+        return `
+        <div class="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm space-y-3">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h4 class="text-xs font-black text-slate-800">${o.service_name || o.description || 'Virtual Number Log'}</h4>
+                    <span class="text-[8px] font-bold text-slate-400 block uppercase tracking-tight">Ref: ${o.reference_id || 'LEGIT-'+o.id}</span>
                 </div>
-            `).join('') : '<div class="text-center py-20 text-slate-400 font-bold">No orders found.</div>';
+                <span class="status-badge ${badgeStyle}">${status}</span>
+            </div>
 
-            // 2. Fetch Transactions (Funding)
-            const { data: txs } = await sb.from('transactions')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            const fundsCont = document.getElementById('funds-list');
-            fundsCont.innerHTML = txs?.length ? txs.map(t => `
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl ${t.type.toLowerCase().includes('deposit') ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-600'} flex items-center justify-center">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-xs font-black uppercase text-slate-400 tracking-widest">${t.type}</p>
-                            <p class="text-[10px] font-bold text-slate-300">${new Date(t.created_at).toLocaleString()}</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-lg font-black ${t.type.toLowerCase().includes('deposit') ? 'text-emerald-500' : 'text-slate-900'}">
-                            ${t.type.toLowerCase().includes('deposit') ? '+' : '-'} ₦${Number(t.amount).toLocaleString()}
-                        </p>
-                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${t.status === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
-                            ${t.status}
-                        </span>
-                    </div>
+            <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-100 flex justify-between items-center text-xs">
+                <div>
+                    <span class="text-[7px] uppercase tracking-wider font-extrabold text-slate-400 block">Purchased Phone Number</span>
+                    <span id="hist-number-${o.id}" class="font-black text-slate-700 tracking-tight">${o.recipient || 'No Number Data'}</span>
                 </div>
-            `).join('') : '<div class="text-center py-20 text-slate-400 font-bold">No transactions found.</div>';
+                ${o.recipient ? `<button onclick="copyValueString('hist-number-${o.id}')" class="text-[8px] font-black text-slate-500 uppercase bg-white px-2 py-1 rounded border active:scale-90">Copy</button>` : ''}
+            </div>
+
+            ${currentServiceType === 'sms' && archivedOtp ? `
+            <div class="bg-indigo-50/40 border border-indigo-100/40 rounded-xl p-2.5 flex justify-between items-center text-xs">
+                <div>
+                    <span class="text-[7px] uppercase tracking-wider font-extrabold text-indigo-400 block">Retrieved OTP Code</span>
+                    <span id="hist-otp-${o.id}" class="font-mono font-black text-indigo-600 tracking-widest text-base">${archivedOtp}</span>
+                </div>
+                <button onclick="copyValueString('hist-otp-${o.id}')" class="text-[8px] font-black text-indigo-600 uppercase bg-white px-2 py-1 rounded border border-indigo-100 active:scale-90">Copy Code</button>
+            </div>
+            ` : ''}
+
+            <div class="flex justify-between items-center border-t border-slate-50 pt-2.5">
+                <div>
+                    <span class="text-[7px] uppercase tracking-wider font-extrabold text-slate-400 block">Amount Charged</span>
+                    <span class="text-xs font-black text-slate-800">₦${Math.abs(o.amount).toLocaleString()}</span>
+                </div>
+                <button onclick='viewReceipt(${JSON.stringify(o).replace(/'/g, "&apos;")})' class="flex items-center gap-1 text-[8px] font-black uppercase text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-lg">
+                    Voucher
+                </button>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+// ================= FIXED EXPLICIT WORKER POLLING CONNECTIONS =================
+function startHeartbeatPolling(activeOrdersList) {
+    document.getElementById('sync-loader').classList.remove('hidden');
+
+    activeOrdersList.forEach(order => {
+        const orderIdStr = order.api_order_id;
+        if (pollingLoops[orderIdStr]) return; 
+
+        pollingLoops[orderIdStr] = setInterval(async () => {
+            try {
+                // FIXED ENDPOINT ROUTE: target checkStatus parameter mapping directly
+                const res = await fetch(`${WORKER_URL}?action=checkStatus&order_id=${orderIdStr}`);
+                const data = await res.json();
+
+                if (!data.success) return;
+
+                if (data.sms_code) {
+                    clearInterval(pollingLoops[orderIdStr]);
+                    delete pollingLoops[orderIdStr];
+
+                    const liveOtpNode = document.getElementByIdlive-otp-${orderIdStr}
+                    const liveOtp = document.getElementById(`live-otp-${orderIdStr}`);
+                    if (liveOtp) {
+                        liveOtp.innerText = data.sms_code;
+                        liveOtp.classList.remove('animate-pulse');
+                    }
+
+                    // Write status parameter updates cleanly to Supabase
+                    await sb.from('transactions').update({ 
+                        status: 'Completed',
+                        otp_code: data.sms_code,
+                        metadata: { otp: data.sms_code, completed_at: new Date().toISOString() }
+                    }).eq('id', order.id);
+
+                    setTimeout(loadOrders, 1000);
+                }
+            } catch (err) { console.error("Polling sync anomaly caught", err); }
+        }, 4500);
+    });
+
+    setTimeout(() => { document.getElementById('sync-loader').classList.add('hidden'); }, 1500);
+}
+
+// ================= TERMINATE ALLOCATION / VOID ENDPOINTS =================
+async function terminateStreamAllocation(apiOrderId, rowId, refundAmount) {
+    if (!confirm("Are you sure you want to cancel this allocation for a full refund?")) return;
+
+    try {
+        if (pollingLoops[apiOrderId]) {
+            clearInterval(pollingLoops[apiOrderId]);
+            delete pollingLoops[apiOrderId];
         }
 
-        window.onload = loadHistory;
-    </script>
+        const response = await fetch(`${WORKER_URL}?action=cancelOrder`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: apiOrderId })
+        });
+        
+        const { data: { user } } = await sb.auth.getUser();
+        const { data: profile } = await sb.from('profiles').select('wallet_balance').eq('id', user.id).single();
+        
+        if (profile) {
+            const updatedWallet = Number(profile.wallet_balance) + Number(refundAmount);
+            await sb.from('profiles').update({ wallet_balance: updatedWallet }).eq('id', user.id);
+        }
+
+        await sb.from('transactions').update({ status: 'Canceled' }).eq('id', rowId);
+        loadOrders();
+    } catch (e) { console.error(e); }
+}
+
+function copyValueString(nodeId) {
+    const txt = document.getElementById(nodeId)?.innerText;
+    if (txt && !txt.includes('---') && txt !== '') {
+        navigator.clipboard.writeText(txt).then(() => { alert("Copied safely!"); });
+    }
+}
+
+function viewReceipt(o) {
+    document.getElementById('r-date').innerText = new Date(o.created_at).toLocaleDateString('en-GB', {day:'2-digit', month:'short'});
+    document.getElementById('r-ref').innerText = o.reference_id || 'LEGIT-' + o.id;
+    document.getElementById('r-service').innerText = o.service_name || o.description || 'LegitMedia SMS';
+    document.getElementById('r-target').innerText = o.recipient || 'N/A';
+    document.getElementById('r-amount').innerText = "₦" + Math.abs(o.amount).toLocaleString();
+    
+    document.getElementById('receipt-modal').classList.remove('hidden');
+    document.getElementById('receipt-modal').classList.add('flex');
+
+    document.getElementById('downloadBtn').onclick = () => {
+        html2canvas(document.getElementById('receipt-content'), { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+            const el = document.createElement('a');
+            el.download = `Receipt_${o.id}.png`;
+            el.href = canvas.toDataURL('image/png');
+            el.click();
+        });
+    };
+}
+
+function closeReceipt() { document.getElementById('receipt-modal').classList.add('hidden'); }
+
+document.querySelectorAll('.srv-tab').forEach(b => {
+    b.addEventListener('click', () => {
+        document.querySelectorAll('.srv-tab').forEach(x => x.classList.remove('service-active', 'srv-tab-active'));
+        b.classList.add('service-active', 'srv-tab-active');
+        currentServiceType = b.getAttribute('data-type');
+        applyFiltersAndRender();
+    });
+});
+
+document.querySelectorAll('.st-tab').forEach(b => {
+    b.addEventListener('click', () => {
+        document.querySelectorAll('.st-tab').forEach(x => x.classList.remove('tab-active'));
+        b.classList.add('tab-active');
+        currentStatusFilter = b.getAttribute('data-status');
+        applyFiltersAndRender();
+    });
+});
+
+document.getElementById('orderSearch').addEventListener('input', () => { applyFiltersAndRender(); });
+window.onload = loadOrders;
+</script>
 </body>
 </html>

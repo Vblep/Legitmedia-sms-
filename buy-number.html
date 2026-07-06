@@ -1,317 +1,720 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buy Number - Legit Media SMS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .shimmer { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .modal-bg { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
-        @keyframes pulse-indigo { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .animate-pulse-custom { animation: pulse-indigo 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        .pop-animation { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Buy Number - Legit Media SMS</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f8fafc;
+}
+.shimmer {
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+}
+.glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+.custom-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+.modal-bg {
+    background: rgba(15, 23, 42, .65);
+    backdrop-filter: blur(5px);
+}
+.pop-animation {
+    animation: pop .35s cubic-bezier(.175, .885, .32, 1.275);
+}
+@keyframes pop {
+    0% { transform: scale(.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.animate-pulse-custom {
+    animation: pulse-indigo 2s cubic-bezier(.4, 0, .6, 1) infinite;
+}
+@keyframes pulse-indigo {
+    0%, 100% { opacity: 1; }
+    50% { opacity:.5; }
+}
+.loader-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #4f46e5;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
 </head>
+
 <body class="min-h-screen text-slate-800 pb-12">
 
-    <nav class="bg-white border-b border-slate-100 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
-                <div class="w-8 h-8 shimmer rounded-lg flex items-center justify-center shadow-lg"><span class="text-white font-bold text-xs">LM</span></div>
-                <span class="font-extrabold text-xl tracking-tighter uppercase">LEGIT<span class="text-indigo-600">MEDIA</span></span>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="text-right">
-                    <p id="nav-balance" class="text-sm font-extrabold text-indigo-600 tracking-tighter">₦0.00</p>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Wallet Balance</p>
-                </div>
-                <div id="user-initials" class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs uppercase">..</div>
-            </div>
-        </div>
-    </nav>
+<div id="global-loading-state" class="fixed inset-0 z-[300] bg-white/70 backdrop-blur-sm flex items-center justify-center transition-all hidden">
+    <div class="bg-white p-5 rounded-3xl shadow-xl border border-slate-100 flex items-center gap-3">
+        <div class="loader-spinner"></div>
+        <span class="text-xs font-bold text-slate-600 tracking-tight">Processing secure connection...</span>
+    </div>
+</div>
 
-    <main class="max-w-lg mx-auto px-4 mt-8 space-y-6">
-        
-        <div class="glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100/50 space-y-6">
-            <div class="relative">
-                <label class="text-[10px] font-bold text-slate-400 ml-1 uppercase tracking-widest">1. Choose Country</label>
-                <div class="mt-1.5 relative">
-                    <input type="text" id="countrySearch" placeholder="Search USA, UK, etc..." 
-                        class="w-full p-4 pl-12 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                        onfocus="showDropdown('country')" onkeyup="filterDropdown('country')">
-                    <svg class="w-5 h-5 text-slate-400 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg>
-                </div>
-                <div id="countryResults" class="absolute z-50 w-full mt-1 max-h-56 overflow-y-auto bg-white border border-slate-100 rounded-2xl shadow-2xl hidden custom-scroll"></div>
-                <input type="hidden" id="countryId">
+<nav class="bg-white border-b border-slate-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
+            <div class="w-8 h-8 shimmer rounded-lg flex items-center justify-center shadow-lg">
+                <span class="text-white font-bold text-xs">LM</span>
             </div>
-
-            <div class="relative">
-                <label class="text-[10px] font-bold text-slate-400 ml-1 uppercase tracking-widest">2. Choose Service</label>
-                <div class="mt-1.5 relative">
-                    <input type="text" id="serviceSearch" placeholder="Search WhatsApp, Google..." 
-                        class="w-full p-4 pl-12 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                        onfocus="showDropdown('service')" onkeyup="filterDropdown('service')">
-                    <svg class="w-5 h-5 text-slate-400 absolute left-4 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2"/></svg>
-                </div>
-                <div id="serviceResults" class="absolute z-50 w-full mt-1 max-h-56 overflow-y-auto bg-white border border-slate-100 rounded-2xl shadow-2xl hidden custom-scroll"></div>
-                <input type="hidden" id="serviceId">
-            </div>
-
-            <div class="shimmer p-8 rounded-[2rem] text-center text-white shadow-xl shadow-indigo-200">
-                <p id="stockStatus" class="text-[10px] font-bold opacity-70 uppercase tracking-widest mb-1">Activation Cost</p>
-                <h2 id="finalPriceDisplay" class="text-5xl font-black tracking-tighter">₦0.00</h2>
-            </div>
-
-            <button id="buyBtn" disabled onclick="handleOrder()" class="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-all disabled:opacity-20 active:scale-95">
-                Place Order
-            </button>
+            <span class="font-extrabold text-xl tracking-tighter uppercase">
+                LEGIT<span class="text-indigo-600">MEDIA</span>
+            </span>
         </div>
 
-        <div class="glass-card rounded-[2rem] p-6 shadow-xl shadow-slate-100/50 space-y-4">
-            <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
-                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2.5"/></svg>
-                Activation Guide
-            </h4>
-            <div class="space-y-3">
-                <div class="flex gap-3">
-                    <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">1</span>
-                    <p class="text-xs text-slate-500 leading-relaxed">Select <b>Country</b> & <b>Service</b>, then click Place Order.</p>
-                </div>
-                <div class="flex gap-3">
-                    <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</span>
-                    <p class="text-xs text-slate-500 leading-relaxed">Copy the number and use it on the target app immediately.</p>
-                </div>
-                <div class="flex gap-3">
-                    <span class="w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span>
-                    <p class="text-xs text-slate-500 leading-relaxed">Wait on this page for the <b>OTP Code</b> to show up.</p>
-                </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right">
+                <p id="nav-balance" class="text-sm font-extrabold text-indigo-600 tracking-tighter">₦0.00</p>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Wallet Balance</p>
             </div>
-        </div>
-
-        <div id="smsPanel" class="hidden glass-card rounded-[2.5rem] p-8 border-2 border-dashed border-indigo-200 text-center space-y-4 pop-animation">
-            <div class="flex justify-between items-center">
-                <div class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest animate-pulse-custom">Listening for SMS...</div>
-                <button onclick="cancelCurrentOrder()" class="text-[9px] font-black text-rose-500 uppercase tracking-widest bg-rose-50 px-3 py-1 rounded-full border border-rose-100 hover:bg-rose-100 transition-all">Cancel Order</button>
-            </div>
-            
-            <div class="flex items-center justify-center gap-3">
-                <h3 id="activeNumber" class="text-3xl font-black text-slate-800 tracking-tighter"></h3>
-                <button onclick="copyNumber()" class="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-all active:scale-90 shadow-sm">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" stroke-width="2"/></svg>
-                </button>
-            </div>
-
-            <div id="otpDisplay" class="text-6xl font-mono font-black text-indigo-600 py-2 tracking-widest">----</div>
-            
-            <div class="flex flex-col gap-2">
-                <p class="text-[10px] text-slate-400 font-medium">Auto-verification active. Do not close this page.</p>
-                <a href="history.html" class="text-[10px] font-bold text-indigo-600 underline uppercase tracking-widest">View History</a>
-            </div>
-        </div>
-
-        <div class="space-y-3">
-            <button onclick="window.location.href='contact.html'" class="w-full py-4 border-2 border-slate-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-white transition-all group">
-                <svg class="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" stroke-width="2"/></svg>
-                <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-slate-900 transition-colors">Contact Support</span>
-            </button>
-            
-            <button onclick="window.location.href='dashboard.html'" class="w-full text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-all py-2">
-                ← Return to Dashboard
-            </button>
-        </div>
-    </main>
-
-    <div id="lowBalanceModal" class="fixed inset-0 z-[100] modal-bg flex items-center justify-center p-6 hidden">
-        <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 pop-animation">
-            <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto ring-4 ring-indigo-50">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2.5"/></svg>
-            </div>
-            <div>
-                <h3 class="text-2xl font-black text-slate-900">Insufficient Funds</h3>
-                <p class="text-sm text-slate-500 font-medium mt-2">Top up your wallet to purchase this number.</p>
-            </div>
-            <div class="space-y-3">
-                <button onclick="window.location.href='recharge.html'" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all">
-                    RECHARGE NOW
-                </button>
-                <button onclick="document.getElementById('lowBalanceModal').classList.add('hidden')" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Dismiss</button>
-            </div>
+            <div id="user-initials" class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs uppercase">..</div>
         </div>
     </div>
+</nav>
 
-    <script>
-        const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo"; 
-        const WORKER = "https://sms-gateway.ebuvick0.workers.dev/recharg"; 
-        const NAIRA_RATE = 1650; 
+<main class="max-w-lg mx-auto px-4 mt-8 space-y-6">
 
-        const sb = supabase.createClient(SB_URL, SB_KEY);
-        let userData = null;
-        let currentBalance = 0;
-        let allCountries = [];
-        let allServices = [];
-        let smsTimer = null;
-        let currentOrderId = null;
+    <div id="panel-stage-1" class="glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100/50 space-y-4">
+        <div>
+            <span class="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-2.5 py-1 rounded-md font-mono">STAGE 01</span>
+            <h2 class="text-xl font-extrabold text-slate-900 mt-2">Select Application</h2>
+        </div>
+        <input type="text" id="serviceSearch" onkeyup="filterServices()" placeholder="🔍 Search verification platforms..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+        
+        <div id="services-grid" class="grid grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1 custom-scroll">
+            </div>
+    </div>
 
-        async function init() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (!user) { window.location.href = 'login.html'; return; }
-            userData = user;
+    <div id="panel-stage-2" class="hidden glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100/50 space-y-4 pop-animation">
+        <div class="flex justify-between items-center">
+            <div>
+                <span class="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-2.5 py-1 rounded-md font-mono">STAGE 02</span>
+                <h2 class="text-xl font-extrabold text-slate-900 mt-2">Select Country</h2>
+            </div>
+            <button onclick="goToStage(1)" class="text-xs font-bold text-indigo-600 hover:underline">← Change App</button>
+        </div>
+        <input type="text" id="countrySearch" onkeyup="filterCountries()" placeholder="🔍 Search lines country origin..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+        
+        <div id="countries-grid" class="grid grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1 custom-scroll">
+            </div>
+    </div>
 
-            const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
-            currentBalance = profile.wallet_balance;
-            document.getElementById('nav-balance').innerText = "₦" + currentBalance.toLocaleString();
-            
-            const name = profile.full_name || profile.username || user.email;
-            document.getElementById('user-initials').innerText = name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+    <div id="panel-stage-3" class="hidden glass-card rounded-[2.5rem] p-8 shadow-2xl shadow-indigo-100/50 space-y-4 pop-animation">
+        <div class="flex justify-between items-center">
+            <div>
+                <span class="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-2.5 py-1 rounded-md font-mono">STAGE 03</span>
+                <h2 class="text-xl font-extrabold text-slate-900 mt-2">Available Operators</h2>
+            </div>
+            <button onclick="goToStage(2)" class="text-xs font-bold text-indigo-600 hover:underline">← Change Country</button>
+        </div>
+        
+        <div id="operators-grid" class="space-y-3 max-h-80 overflow-y-auto pr-1 custom-scroll">
+            </div>
+    </div>
 
-            loadData();
+    <div id="smsPanel" class="hidden glass-card rounded-[2.5rem] p-8 border-2 border-indigo-500 shadow-2xl shadow-indigo-100 space-y-6 pop-animation">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+            <div>
+                <span class="bg-indigo-600 text-white text-[9px] font-black px-2.5 py-1 rounded-md font-mono uppercase tracking-wider">LIVE DATA STREAM</span>
+                <h3 id="panel-service-title" class="text-sm font-extrabold text-slate-400 mt-1 uppercase tracking-wider">WhatsApp Line Allocation</h3>
+            </div>
+            <div id="expiry-countdown-display" class="bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold font-mono px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <span>⏳ Exp:</span><span id="expiry-timer">15:00</span>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-100 rounded-3xl p-5 text-center space-y-2 relative overflow-hidden">
+            <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 block font-mono">Provisioned Network Line</span>
+            <div class="flex items-center justify-center gap-3">
+                <h2 id="activeNumber" class="text-3xl font-black text-slate-900 tracking-tighter select-all"></h2>
+                <button onclick="copyNumber()" class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all active:scale-90 shadow-sm border border-indigo-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-width="2.5" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-[10px] text-slate-400 font-medium">Click copy icon or double-tap number packets to extract code directly.</p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-[2rem] p-6 text-center space-y-4 shadow-inner">
+            <div class="flex items-center justify-center gap-2">
+                <div id="otp-pulse-spinner" class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
+                <span id="status-pulse-text" class="text-[10px] font-black text-amber-400 uppercase tracking-widest font-mono">Awaiting SMS Transmission Packet...</span>
+            </div>
+
+            <div id="otpDisplay" class="text-5xl font-mono font-black text-white py-2 tracking-[0.2em] transition-all">------</div>
+
+            <div class="pt-1">
+                <button onclick="copyOTP()" class="px-5 py-2 bg-white/10 hover:bg-white/15 text-white border border-white/10 rounded-xl text-xs font-bold tracking-wide transition-all active:scale-95">
+                    Copy OTP Code
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+            <button id="btn-cancel" onclick="cancelCurrentOrder()" disabled class="w-full py-4 text-slate-400 bg-slate-100 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all cursor-not-allowed">
+                Cancel (30s)
+            </button>
+            <button id="btn-finish" onclick="finishCurrentOrder()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] hover:bg-emerald-700 transition-all opacity-40 pointer-events-none shadow-lg shadow-emerald-900/10">
+                ✔️ Complete Release
+            </button>
+        </div>
+    </div>
+</main>
+
+<div id="lowBalanceModal" class="fixed inset-0 z-[100] modal-bg flex items-center justify-center p-6 hidden">
+    <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 pop-animation">
+        <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto ring-4 ring-indigo-50">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <div>
+            <h3 class="text-2xl font-black text-slate-900">Insufficient Funds</h3>
+            <p class="text-sm text-slate-500 font-medium mt-2">Top up your wallet to purchase this configuration.</p>
+        </div>
+        <div class="space-y-3">
+            <button onclick="window.location.href='recharge.html'" class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 active:scale-95 transition-all">RECHARGE NOW</button>
+            <button onclick="document.getElementById('lowBalanceModal').classList.add('hidden')" class="text-xs font-bold text-slate-400 uppercase tracking-widest">Dismiss</button>
+        </div>
+    </div>
+</div>
+
+<div id="restockingModal" class="fixed inset-0 z-[100] modal-bg flex items-center justify-center p-6 hidden">
+    <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 pop-animation">
+        <div class="w-20 h-20 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto ring-4 ring-amber-50">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+        </div>
+        <div>
+            <h3 class="text-2xl font-black text-slate-900">System Restocking</h3>
+            <p class="text-sm text-slate-500 font-medium mt-2">Oops, we are restocking verification channels at the moment. Please check back within a few minutes or hours.</p>
+        </div>
+        <div class="space-y-2 pt-2">
+            <button onclick="document.getElementById('restockingModal').classList.add('hidden')" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all">Understood</button>
+        </div>
+    </div>
+</div>
+
+<div id="otpModal" class="fixed inset-0 z-[200] modal-bg hidden items-center justify-center p-5">
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl text-center pop-animation">
+        <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] mb-2">NUMBER ACTIVATED</p>
+        <h2 id="modalNumber" class="text-3xl font-black text-slate-900 tracking-tight"></h2>
+        
+        <div class="mt-6 bg-slate-50 rounded-3xl p-6 border border-slate-100">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-2">OTP CODE</p>
+            <div id="modalOtp" class="text-5xl font-black font-mono text-indigo-600 tracking-[0.15em]">----</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-6">
+            <button onclick="copyNumber()" class="py-4 rounded-2xl bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all">Copy Number</button>
+            <button onclick="copyOTP()" class="py-4 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all">Copy OTP</button>
+        </div>
+        <button onclick="closeOtpModal()" class="mt-5 text-[10px] uppercase tracking-[0.3em] font-black text-slate-400">CLOSE VIEW</button>
+    </div>
+</div>
+
+<script>
+const SB_URL = "https://gfhbwybslaxgdzcqkzra.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmaGJ3eWJzbGF4Z2R6Y3FrenJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzI1NDUsImV4cCI6MjA4NzU0ODU0NX0.EkmUwtBi9OiScuMt9PELS6-vDXgQVofvadJ8aLFvyKo";
+const PROXY_GATEWAY_URL = "https://new5sim.ebuvick0.workers.dev";
+
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+let state = {
+    usdToNgnRate: 1400,
+    selectedServiceCode: null,
+    selectedServiceName: null,
+    selectedCountryName: null,
+    cancelSecondsLeft: 30,
+    expirySecondsLeft: 900, // 15 Minutes allocations
+    currentCountryOperatorsData: null
+};
+
+let userData = null;
+let currentBalance = 0;
+let currentOrderId = null;
+let currentTransactionId = null;
+let smsTimer = null;
+let countdownTimer = null;
+let totalExpiryTimer = null;
+let isOtpReceived = false;
+let currentCalculatedPriceNaira = 0;
+let dynamicCountriesArray = [];
+
+const PLATFORM_SERVICES = [
+    { code: "whatsapp", name: "WhatsApp" },
+    { code: "telegram", name: "Telegram" },
+    { code: "google", name: "Google / YouTube" },
+    { code: "facebook", name: "Facebook Meta" },
+    { code: "instagram", name: "Instagram" },
+    { code: "tiktok", name: "TikTok" },
+    { code: "twitter", name: "X / Twitter" },
+    { code: "openai", name: "OpenAI / ChatGPT" },
+    { code: "netflix", name: "Netflix" },
+    { code: "microsoft", name: "Microsoft / Outlook" },
+    { code: "apple", name: "Apple ID" },
+    { code: "amazon", name: "Amazon" },
+    { code: "snapchat", name: "Snapchat" },
+    { code: "viber", name: "Viber" },
+    { code: "wechat", name: "WeChat" },
+    { code: "line", name: "Line Messenger" },
+    { code: "tinder", name: "Tinder" },
+    { code: "imo", name: "Imo Video App" }
+];
+
+function showSpinner(status) {
+    const loader = document.getElementById('global-loading-state');
+    if (status) loader.classList.remove('hidden');
+    else loader.classList.add('hidden');
+}
+
+// ================= INITIALIZATION =================
+async function init(){
+    try {
+        const { data:{ user } } = await sb.auth.getUser();
+        if(!user){
+            window.location.href = "login.html";
+            return;
+        }
+        userData = user;
+
+        const { data:profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+        currentBalance = profile?.wallet_balance || 0;
+        document.getElementById('nav-balance').innerText = "₦" + currentBalance.toLocaleString();
+        document.getElementById('user-initials').innerText = (profile?.full_name || user.email).substring(0,2).toUpperCase();
+
+        showSpinner(true);
+        await syncMarketRates();
+        renderServicesGrid(PLATFORM_SERVICES);
+        showSpinner(false);
+        
+        goToStage(1);
+    } catch(err) {
+        showSpinner(false);
+        console.error(err);
+    }
+}
+
+async function syncMarketRates() {
+    try {
+        const res = await fetch("https://open.er-api.com/v6/latest/USD");
+        const data = await res.json();
+        if(data && data.rates && data.rates.NGN) {
+            state.usdToNgnRate = parseFloat(data.rates.NGN);
+        }
+    } catch(e) { console.warn("Using baseline currency index."); }
+}
+
+function goToStage(stageNum) {
+    document.getElementById('panel-stage-1').classList.add('hidden');
+    document.getElementById('panel-stage-2').classList.add('hidden');
+    document.getElementById('panel-stage-3').classList.add('hidden');
+    document.getElementById(`panel-stage-${stageNum}`).classList.remove('hidden');
+}
+
+// Math Transform Computation Markup 
+function computeNairaPrice(usdCost) {
+    const baseConverted = usdCost * state.usdToNgnRate;
+    return Math.ceil(baseConverted + 1500);
+}
+
+// ================= STAGE 1: SERVICES =================
+function renderServicesGrid(services) {
+    const grid = document.getElementById('services-grid');
+    grid.innerHTML = '';
+    services.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:border-indigo-500 cursor-pointer text-center font-bold text-sm transition-all shadow-sm flex flex-col justify-center items-center min-h-[64px]";
+        div.innerHTML = `<span class="text-slate-800 tracking-tight leading-tight">${item.name}</span>`;
+        div.onclick = () => selectService(item.code, item.name);
+        grid.appendChild(div);
+    });
+}
+
+function filterServices() {
+    const q = document.getElementById('serviceSearch').value.toLowerCase();
+    const filtered = PLATFORM_SERVICES.filter(s => s.name.toLowerCase().includes(q));
+    renderServicesGrid(filtered);
+}
+
+// ================= STAGE 2: COUNTRIES =================
+async function selectService(serviceCode, serviceName) {
+    state.selectedServiceCode = serviceCode;
+    state.selectedServiceName = serviceName;
+    
+    showSpinner(true);
+    const grid = document.getElementById('countries-grid');
+    grid.innerHTML = '';
+
+    try {
+        const targetUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent('v1/guest/prices?product=' + serviceCode)}`;
+        const response = await fetch(targetUrl);
+        const priceData = await response.json();
+        
+        showSpinner(false);
+        goToStage(2);
+
+        const serviceBlock = priceData[serviceCode] || {};
+        dynamicCountriesArray = Object.keys(serviceBlock).sort();
+
+        if (dynamicCountriesArray.length === 0) {
+            grid.innerHTML = '<p class="text-xs text-amber-500 font-semibold text-center col-span-2 py-6">No active country routes routing this service.</p>';
+            return;
         }
 
-        async function loadData() {
-            try {
-                const cRes = await fetch(`${WORKER}?url=${encodeURIComponent('https://sms-bus.com/api/control/list/countries')}`);
-                const cJson = await cRes.json();
-                allCountries = Object.values(cJson.data);
-                renderList('country', allCountries);
+        state.currentCountryOperatorsData = serviceBlock;
+        renderCountriesGrid(dynamicCountriesArray);
 
-                const sRes = await fetch(`${WORKER}?url=${encodeURIComponent('https://sms-bus.com/api/control/list/projects')}`);
-                const sJson = await sRes.json();
-                allServices = Object.values(sJson.data);
-                renderList('service', allServices);
-            } catch (e) { console.error(e); }
+    } catch (err) {
+        showSpinner(false);
+        console.error(err);
+        grid.innerHTML = '<p class="text-xs text-rose-500 text-center col-span-2 py-6">Connection layout error matching asset routes.</p>';
+    }
+}
+
+function renderCountriesGrid(countries) {
+    const grid = document.getElementById('countries-grid');
+    grid.innerHTML = '';
+    countries.forEach(countryKey => {
+        const countryOperators = state.currentCountryOperatorsData[countryKey] || {};
+        let lowestUsdPrice = 999;
+        Object.values(countryOperators).forEach(op => {
+            if(op.cost < lowestUsdPrice) lowestUsdPrice = op.cost;
+        });
+
+        const localizedBaseNaira = computeNairaPrice(lowestUsdPrice);
+
+        const div = document.createElement('div');
+        div.className = "p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:border-indigo-500 cursor-pointer text-left transition-all shadow-sm flex flex-col justify-between h-20";
+        div.innerHTML = `
+            <span class="font-bold text-xs uppercase text-slate-700 block truncate">${countryKey}</span>
+            <span class="text-sm font-black text-indigo-600">₦${localizedBaseNaira.toLocaleString()}</span>
+        `;
+        div.onclick = () => selectCountry(countryKey);
+        grid.appendChild(div);
+    });
+}
+
+function filterCountries() {
+    const q = document.getElementById('countrySearch').value.toLowerCase();
+    const filtered = dynamicCountriesArray.filter(c => c.toLowerCase().includes(q));
+    renderCountriesGrid(filtered);
+}
+
+// ================= STAGE 3: OPERATORS =================
+function selectCountry(countryKey) {
+    state.selectedCountryName = countryKey;
+    goToStage(3);
+
+    const grid = document.getElementById('operators-grid');
+    grid.innerHTML = '';
+
+    const operatorsList = state.currentCountryOperatorsData[countryKey] || {};
+    
+    Object.keys(operatorsList).forEach(opKey => {
+        const item = operatorsList[opKey];
+        const finalCalculatedNaira = computeNairaPrice(item.cost);
+        
+        // Dynamically map exact dynamic rating percentages from API matrix response
+        const rawSuccessRate = item.rating !== undefined ? parseInt(item.rating) : 85;
+
+        let badgeColor = "";
+        if (rawSuccessRate >= 75) badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-100";
+        else if (rawSuccessRate >= 40 && rawSuccessRate < 75) badgeColor = "bg-amber-50 text-amber-600 border-amber-100";
+        else badgeColor = "bg-rose-50 text-rose-600 border-rose-100";
+
+        const card = document.createElement('div');
+        card.className = "p-4 rounded-2xl border border-slate-200 bg-white hover:border-indigo-500 transition-all flex justify-between items-center shadow-sm cursor-pointer active:scale-[0.99]";
+        card.innerHTML = `
+            <div>
+                <h4 class="font-extrabold text-sm uppercase text-slate-800">${opKey}</h4>
+                <p class="text-[11px] font-bold text-slate-400 mt-0.5">Stock Available: <span class="text-slate-600 font-semibold">${item.count.toLocaleString()}</span></p>
+            </div>
+            <div class="text-right flex items-center gap-3">
+                <span class="text-xs font-bold border px-2.5 py-1 rounded-full ${badgeColor}">${rawSuccessRate}% Success</span>
+                <span class="text-base font-black text-indigo-600">₦${finalCalculatedNaira.toLocaleString()}</span>
+            </div>
+        `;
+        card.onclick = () => triggerPurchaseProcess(opKey, finalCalculatedNaira);
+        grid.appendChild(card);
+    });
+}
+
+// ================= STAGE 4: EXECUTING ALLOCATION & POLLING STREAM =================
+async function triggerPurchaseProcess(operatorName, validatedFinalPrice) {
+    currentCalculatedPriceNaira = validatedFinalPrice;
+
+    if(currentBalance < currentCalculatedPriceNaira) {
+        document.getElementById('lowBalanceModal').classList.remove('hidden');
+        return;
+    }
+
+    showSpinner(true);
+
+    const buyEndpoint = `v1/user/buy/activation/${state.selectedCountryName}/${operatorName}/${state.selectedServiceCode}`;
+    const targetUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent(buyEndpoint)}`;
+
+    try {
+        const res = await fetch(targetUrl);
+        const data = await res.json();
+        showSpinner(false);
+
+        if (!res.ok || data.error || !data.id) {
+            document.getElementById('restockingModal').classList.remove('hidden');
+            return;
         }
 
-        function renderList(type, data) {
-            const container = document.getElementById(`${type}Results`);
-            container.innerHTML = '';
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "p-4 hover:bg-indigo-50 cursor-pointer border-b border-slate-50 font-bold text-xs text-slate-700";
-                div.innerText = item.title;
-                div.onclick = () => selectItem(type, item.id, item.title);
-                container.appendChild(div);
-            });
+        currentOrderId = data.id;
+        const phoneNumber = data.phone;
+        const generatedRef = 'SMS-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+
+        // Safe insertion into transactions ledger matrix
+        const { data: txData, error: txError } = await sb.from('transactions').insert({
+            user_id: userData.id,
+            type: 'SMS Activation',
+            amount: -currentCalculatedPriceNaira,
+            description: `Virtual Line: ${state.selectedServiceName} (${operatorName.toUpperCase()})`,
+            status: 'Processing',
+            recipient: phoneNumber,
+            service_category: 'sms',
+            api_order_id: currentOrderId.toString(),
+            reference_id: generatedRef
+        }).select().single();
+
+        if (txError) throw txError;
+        currentTransactionId = txData.id;
+
+        // Perform transactional debit securely
+        const newBalance = currentBalance - currentCalculatedPriceNaira;
+        await sb.from('profiles').update({ wallet_balance: newBalance }).eq('id', userData.id);
+        currentBalance = newBalance;
+        document.getElementById('nav-balance').innerText = "₦" + currentBalance.toLocaleString();
+
+        document.getElementById('panel-service-title').innerText = `${state.selectedServiceName} — Allocation Panel`;
+        document.getElementById('activeNumber').innerText = phoneNumber;
+        document.getElementById('modalNumber').innerText = phoneNumber;
+        
+        document.getElementById('panel-stage-3').classList.add('hidden');
+        document.getElementById('smsPanel').classList.remove('hidden');
+        document.getElementById('smsPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        launchTimerCountdown();
+        startPolling();
+
+    } catch (err) {
+        showSpinner(false);
+        console.error(err);
+        document.getElementById('restockingModal').classList.remove('hidden');
+    }
+}
+
+function launchTimerCountdown() {
+    state.cancelSecondsLeft = 30;
+    state.expirySecondsLeft = 900; // Reset overall 15-minute lifespan sequence
+    isOtpReceived = false;
+    
+    const cancelBtn = document.getElementById('btn-cancel');
+    cancelBtn.disabled = true;
+    cancelBtn.className = "w-full py-4 text-slate-400 bg-slate-100 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all cursor-not-allowed";
+    cancelBtn.innerText = `Cancel (${state.cancelSecondsLeft}s)`;
+
+    // 1. Cancellation Gateway Countdown
+    if (countdownTimer) clearInterval(countdownTimer);
+    countdownTimer = setInterval(() => {
+        state.cancelSecondsLeft--;
+        if (state.cancelSecondsLeft <= 0) {
+            clearInterval(countdownTimer);
+            cancelBtn.disabled = false;
+            cancelBtn.className = "w-full py-4 bg-rose-50 border border-rose-200 text-rose-600 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] hover:bg-rose-100 transition-all cursor-pointer";
+            cancelBtn.innerText = "Cancel Order";
+        } else {
+            cancelBtn.innerText = `Cancel (${state.cancelSecondsLeft}s)`;
         }
+    }, 1000);
 
-        function filterDropdown(type) {
-            const input = document.getElementById(`${type}Search`).value.toLowerCase();
-            const data = (type === 'country') ? allCountries : allServices;
-            const filtered = data.filter(i => i.title.toLowerCase().includes(input));
-            renderList(type, filtered);
+    // 2. Main Order Expiry Timeline Tracker (15 Mins)
+    if (totalExpiryTimer) clearInterval(totalExpiryTimer);
+    totalExpiryTimer = setInterval(() => {
+        state.expirySecondsLeft--;
+        
+        let mins = Math.floor(state.expirySecondsLeft / 60);
+        let secs = state.expirySecondsLeft % 60;
+        document.getElementById('expiry-timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+        if (state.expirySecondsLeft <= 0) {
+            clearInterval(totalExpiryTimer);
+            clearInterval(smsTimer);
+            alert("Line subscription context expired naturally.");
+            resetActivationUIPanel();
         }
+    }, 1000);
+}
 
-        function showDropdown(type) {
-            document.getElementById(`${type}Results`).classList.remove('hidden');
-        }
+function startPolling() {
+    if (smsTimer) clearInterval(smsTimer);
+    smsTimer = setInterval(async () => {
+        if (!currentOrderId) return;
+        try {
+            const checkUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent('v1/user/check/' + currentOrderId)}`;
+            const res = await fetch(checkUrl);
+            const data = await res.json();
 
-        function selectItem(type, id, title) {
-            document.getElementById(`${type}Search`).value = title;
-            document.getElementById(`${type}Id`).value = id;
-            document.getElementById(`${type}Results`).classList.add('hidden');
-            if (document.getElementById('countryId').value && document.getElementById('serviceId').value) loadPrices();
-        }
-
-        async function loadPrices() {
-            const cId = document.getElementById('countryId').value;
-            const sId = document.getElementById('serviceId').value;
-            document.getElementById('stockStatus').innerText = "FETCHING COST...";
-            
-            const res = await fetch(`${WORKER}?url=${encodeURIComponent('https://sms-bus.com/api/control/list/prices?country_id='+cId)}`);
-            const json = await res.json();
-            const item = Object.values(json.data).find(x => x.project_id == sId);
-            
-            if(item) {
-                const price = Math.ceil(item.cost * NAIRA_RATE) + 500;
-                document.getElementById('finalPriceDisplay').innerText = "₦" + price.toLocaleString();
-                document.getElementById('stockStatus').innerText = item.total_count + " AVAILABLE";
-                document.getElementById('buyBtn').disabled = false;
-            } else {
-                document.getElementById('stockStatus').innerText = "OUT OF STOCK";
-                document.getElementById('buyBtn').disabled = true;
-            }
-        }
-
-        async function handleOrder() {
-            const price = parseInt(document.getElementById('finalPriceDisplay').innerText.replace(/\D/g,''));
-            const serviceName = document.getElementById('serviceSearch').value;
-            if(currentBalance < price) { document.getElementById('lowBalanceModal').classList.remove('hidden'); return; }
-
-            const btn = document.getElementById('buyBtn');
-            btn.innerText = "PROCESSING..."; btn.disabled = true;
-
-            try {
-                const res = await fetch(`${WORKER}?action=getNumber`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userData.id, countryId: document.getElementById('countryId').value, projectId: document.getElementById('serviceId').value, priceNaira: price })
-                });
-                const result = await res.json();
-
-                if(result.code === 200) {
-                    const number = result.data.number;
-                    currentOrderId = result.data.request_id;
-
-                    await sb.from('transactions').insert({ user_id: userData.id, amount: price, type: 'Purchase', status: 'success', description: `Number: +${number} (${serviceName})` });
-                    await sb.from('purchased_numbers').insert({ user_id: userData.id, number: "+" + number, service: serviceName, order_id: currentOrderId, otp: null });
-                    
-                    const { data: updateData } = await sb.from('profiles').update({ wallet_balance: currentBalance - price }).eq('id', userData.id).select().single();
-                    currentBalance = updateData.wallet_balance;
-                    
-                    document.getElementById('nav-balance').innerText = "₦" + currentBalance.toLocaleString();
-                    document.getElementById('activeNumber').innerText = "+" + number;
-                    document.getElementById('smsPanel').classList.remove('hidden');
-                    checkSMS(currentOrderId);
-                } else {
-                    alert(result.message); btn.innerText = "Place Order"; btn.disabled = false;
-                }
-            } catch (err) { alert("Failed to connect."); btn.innerText = "Place Order"; btn.disabled = false; }
-        }
-
-        function copyNumber() {
-            const num = document.getElementById('activeNumber').innerText;
-            navigator.clipboard.writeText(num).then(() => {
-                const btn = document.querySelector('[onclick="copyNumber()"]');
-                const oldHtml = btn.innerHTML;
-                btn.innerHTML = `<svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3"/></svg>`;
-                setTimeout(() => btn.innerHTML = oldHtml, 2000);
-            });
-        }
-
-        async function cancelCurrentOrder() {
-            if (!currentOrderId || !confirm("Cancel this number?")) return;
-            try {
-                await fetch(`${WORKER}?url=${encodeURIComponent('https://sms-bus.com/api/control/set/status?request_id=' + currentOrderId + '&status=8')}`);
+            if (data && data.sms && data.sms.length > 0) {
+                isOtpReceived = true;
                 clearInterval(smsTimer);
-                document.getElementById('smsPanel').classList.add('hidden');
-                document.getElementById('buyBtn').innerText = "Place Order";
-                document.getElementById('buyBtn').disabled = false;
-            } catch (e) { alert("Cancellation failed."); }
-        }
+                clearInterval(countdownTimer);
+                clearInterval(totalExpiryTimer);
 
-        function checkSMS(reqId) {
-            smsTimer = setInterval(async () => {
-                const res = await fetch(`${WORKER}?url=${encodeURIComponent('https://sms-bus.com/api/control/get/sms?request_id='+reqId)}`);
-                const json = await res.json();
-                if(json.code === 200 && json.data) {
-                    document.getElementById('otpDisplay').innerText = json.data;
-                    await sb.from('purchased_numbers').update({ otp: json.data }).eq('order_id', reqId);
-                    clearInterval(smsTimer);
-                    alert("OTP RECEIVED: " + json.data);
-                }
-            }, 7000);
-        }
+                const otpCode = data.sms[0].code;
+                
+                // Animate text packet loading cleanly into DOM metrics 
+                document.getElementById('otpDisplay').innerText = otpCode;
+                document.getElementById('otpDisplay').className = "text-6xl font-mono font-black text-emerald-400 py-2 tracking-[0.25em] pop-animation";
+                document.getElementById('modalOtp').innerText = otpCode;
 
-        document.addEventListener('click', (e) => { if(!e.target.closest('.relative')) { document.getElementById('countryResults').classList.add('hidden'); document.getElementById('serviceResults').classList.add('hidden'); } });
-        window.onload = init;
-    </script>
+                document.getElementById('otp-pulse-spinner').classList.add('bg-emerald-500');
+                document.getElementById('otp-pulse-spinner').classList.remove('bg-amber-500', 'animate-ping');
+                document.getElementById('status-pulse-text').innerText = "TRANSMISSION PACKET RECEIVED SUCCESSFULLY";
+                document.getElementById('status-pulse-text').className = "text-[10px] font-black text-emerald-400 uppercase tracking-widest font-mono";
+
+                const cancelBtn = document.getElementById('btn-cancel');
+                cancelBtn.disabled = true;
+                cancelBtn.className = "w-full py-4 text-slate-300 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all cursor-not-allowed opacity-50";
+                cancelBtn.innerText = "Cancellation Closed";
+
+                document.getElementById('btn-finish').classList.remove('opacity-40', 'pointer-events-none');
+
+                await sb.from('transactions').update({ status: 'Completed', metadata: { otp: otpCode, response: data } }).eq('id', currentTransactionId);
+                await sb.from('sms_logs').insert({
+                    user_id: userData.id, transaction_id: currentTransactionId,
+                    number: document.getElementById('activeNumber').innerText, otp: otpCode,
+                    service: state.selectedServiceName, country: state.selectedCountryName, status: 'Completed'
+                });
+
+                document.getElementById('otpModal').classList.remove('hidden');
+                document.getElementById('otpModal').classList.add('flex');
+            }
+        } catch (e) { console.warn("Polling incoming SMS line context stream..."); }
+    }, 4500);
+}
+
+async function cancelCurrentOrder() {
+    if (isOtpReceived) return;
+    const confirmCancel = confirm("Are you sure you want to cancel this configuration line?");
+    if (!confirmCancel) return;
+
+    try {
+        clearInterval(smsTimer);
+        clearInterval(countdownTimer);
+        clearInterval(totalExpiryTimer);
+        showSpinner(true);
+
+        try {
+            const cancelUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent('v1/user/cancel/' + currentOrderId)}`;
+            await fetch(cancelUrl);
+        } catch (e) { console.log("Provider allocation channel dropped."); }
+
+        // Securely re-credit user profile balance instantly
+        currentBalance += currentCalculatedPriceNaira;
+        await sb.from("profiles").update({ wallet_balance: currentBalance }).eq("id", userData.id);
+        document.getElementById("nav-balance").innerText = "₦" + currentBalance.toLocaleString();
+
+        await sb.from("transactions").update({ status: "Cancelled" }).eq("id", currentTransactionId);
+        await sb.from("sms_logs").insert({
+            user_id: userData.id, transaction_id: currentTransactionId,
+            number: document.getElementById("activeNumber").innerText, otp: null,
+            service: state.selectedServiceName, country: state.selectedCountryName, status: "Cancelled"
+        });
+
+        showSpinner(false);
+        alert("Order canceled cleanly. Full balance returned.");
+        resetActivationUIPanel();
+    } catch (err) {
+        showSpinner(false);
+        alert("Error executing cancellation protocols.");
+    }
+}
+
+async function finishCurrentOrder() {
+    if (!currentOrderId) return;
+    try {
+        showSpinner(true);
+        const finishUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent('v1/user/finish/' + currentOrderId)}`;
+        await fetch(finishUrl);
+        showSpinner(false);
+        alert("Activation complete!");
+        resetActivationUIPanel();
+    } catch(e) { 
+        showSpinner(false);
+        alert("Error terminating activation line closures."); 
+    }
+}
+
+function resetActivationUIPanel() {
+    document.getElementById("smsPanel").classList.add("hidden");
+    document.getElementById('otpDisplay').innerText = "------";
+    document.getElementById('otpDisplay').className = "text-5xl font-mono font-black text-white py-2 tracking-[0.2em] transition-all";
+    document.getElementById('otp-pulse-spinner').className = "w-2 h-2 rounded-full bg-amber-500 animate-ping";
+    document.getElementById('status-pulse-text').innerText = "Awaiting SMS Transmission Packet...";
+    document.getElementById('status-pulse-text').className = "text-[10px] font-black text-amber-400 uppercase tracking-widest font-mono";
+    document.getElementById('btn-finish').classList.add('opacity-40', 'pointer-events-none');
+    
+    if (smsTimer) clearInterval(smsTimer);
+    if (countdownTimer) clearInterval(countdownTimer);
+    if (totalExpiryTimer) clearInterval(totalExpiryTimer);
+    
+    currentOrderId = null;
+    currentTransactionId = null;
+    goToStage(1);
+}
+
+// ================= UTILITIES =================
+function copyNumber(){
+    const num = document.getElementById('activeNumber').innerText;
+    if(!num) return;
+    navigator.clipboard.writeText(num).then(() => alert("Number copied successfully."));
+}
+
+function copyOTP(){
+    const otp = document.getElementById('otpDisplay').innerText;
+    if(!otp || otp === "------") return;
+    navigator.clipboard.writeText(otp).then(() => alert("OTP Token copied."));
+}
+
+function closeOtpModal(){
+    document.getElementById('otpModal').classList.add('hidden');
+    document.getElementById('otpModal').classList.remove('flex');
+}
+
+window.onload = init;
+</script>
+
 </body>
 </html>
