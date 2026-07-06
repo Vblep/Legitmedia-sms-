@@ -38,6 +38,7 @@ let countdownTimer = null;
 let totalExpiryTimer = null;
 let isOtpReceived = false;
 let currentCalculatedPriceNaira = 0;
+let lastUsedOperator = "";
 
 // High-Performance ISO-2 Flag Standardization Mapping Index
 const COMPREHENSIVE_FLAG_MAP = {
@@ -65,7 +66,7 @@ const PLATFORM_SERVICES = [
 ];
 
 // ==========================================
-// 📡 TELEMETRY INTERCEPT AUDITING LOGGER
+// 📡 TELEMETRY INTERCEPT AUDITING LOGGER[span_1](start_span)[span_1](end_span)
 // ==========================================
 async function dispatchAuditLog(actionName, detailMessage, logStatus = "INFO") {
     const userEmail = userProfile ? userProfile.email : "Unauthenticated Guest";
@@ -111,13 +112,11 @@ function toggleTheme() {
 // 🛡️ AUTHENTICATION INTEGRITY LAYER (STABLE ENGINE)
 // ==========================================
 async function checkAuthSession() {
-    showSpinner(true);
+    showSpinner(true, "Verifying Session...");
     try {
-        // Fetch session tokens sequentially from storage nodes
         const { data: { user }, error: authError } = await sb.auth.getUser();
         
         if (authError || !user) {
-            console.warn("Auth token mapping invalid. Routing back to session authorization interface...");
             showSpinner(false);
             window.location.href = "login.html";
             return;
@@ -131,7 +130,6 @@ async function checkAuthSession() {
             badgeElement.title = userProfile.email;
         }
 
-        // Fetch user wallet data balance context cleanly
         const { data: profileData, error: profileErr } = await sb
             .from('profiles')
             .select('wallet_balance, full_name')
@@ -149,7 +147,7 @@ async function checkAuthSession() {
         
         updateBalanceUIDisplays();
     } catch(err) {
-        console.error("Critical execution mapping dropped, forcing fallback:", err);
+        console.error("Critical entry point sync error:", err);
         window.location.href = "login.html";
     }
     showSpinner(false);
@@ -171,7 +169,7 @@ async function syncMarketRates() {
         if(data && data.rates && data.rates.NGN) {
             state.usdToNgnRate = parseFloat(data.rates.NGN);
         }
-    } catch(e) { console.warn("Using default internal processing rates parameters."); }
+    } catch(e) { console.warn("Using default fallback internal exchange parameter."); }
 }
 
 function computeNairaPrice(usdCost) {
@@ -202,7 +200,7 @@ function renderServicesGrid(services) {
 async function selectService(serviceCode, serviceName) {
     state.selectedServiceCode = serviceCode;
     state.selectedServiceName = serviceName;
-    showSpinner(true);
+    showSpinner(true, "Loading Channels...");
 
     try {
         const targetUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent('v1/guest/prices?product=' + serviceCode)}`;
@@ -211,7 +209,7 @@ async function selectService(serviceCode, serviceName) {
 
         showSpinner(false);
         if (priceData.error || !priceData[serviceCode]) {
-            alert("No confirmation response channels open right now.");
+            alert("No configuration response channels available.");
             return;
         }
 
@@ -282,21 +280,22 @@ function selectCountry(countryKey) {
         const cleanOperatorHeading = opKey.toLowerCase() === "any" ? "Any Operator (Optimized Auto)" : opKey;
 
         const card = document.createElement('div');
-        card.className = "p-4.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm cursor-pointer";
+        // Optimized design matrix spacing parameters (p-5.5 internal and spacing gaps) to remove jammed pack feel
+        card.className = "p-5.5 mb-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4.5 shadow-sm cursor-pointer";
         card.innerHTML = `
-            <div class="space-y-0.5">
-                <div class="flex items-center gap-2">
+            <div class="space-y-1.5">
+                <div class="flex items-center gap-2.5">
                     <h4 class="font-black text-xs uppercase tracking-wide text-slate-900 dark:text-white">${cleanOperatorHeading}</h4>
                     <span class="text-[8px] border px-2 py-0.5 rounded font-mono ${trackingColorClass}">${dynamicSuccessRate}% Rate</span>
                 </div>
                 <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">Stock Allocation: <span class="text-slate-700 dark:text-slate-300">${item.count.toLocaleString()}</span></p>
             </div>
-            <div class="flex items-center justify-between sm:justify-end gap-4 border-t border-slate-100 dark:border-slate-800/60 sm:border-0 pt-2 sm:pt-0">
+            <div class="flex items-center justify-between sm:justify-end gap-5 border-t border-slate-100 dark:border-slate-800/60 sm:border-0 pt-2.5 sm:pt-0">
                 <div class="sm:text-right">
                     <span class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block font-mono">Price</span>
                     <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">₦${finalCalculatedNaira.toLocaleString()}</span>
                 </div>
-                <button class="px-3.5 py-2 bg-indigo-600 text-white font-black text-[9px] tracking-wider uppercase rounded-xl">Buy Line</button>
+                <button class="px-4 py-2.5 bg-indigo-600 text-white font-black text-[9px] tracking-wider uppercase rounded-xl shadow-sm hover:bg-indigo-700 transition-all">Buy Line</button>
             </div>
         `;
         card.onclick = () => triggerPurchaseProcess(opKey, finalCalculatedNaira);
@@ -305,39 +304,62 @@ function selectCountry(countryKey) {
 }
 
 // ==========================================
-// 🛒 EXECUTION INTERCEPT ROUTING TERMINAL
+// 🛒 EXECUTION INTERCEPT ROUTING TERMINAL[span_2](start_span)[span_2](end_span)
 // ==========================================
 async function triggerPurchaseProcess(operatorName, validatedFinalPrice) {
     currentCalculatedPriceNaira = validatedFinalPrice;
+    lastUsedOperator = operatorName;
 
+    // 1. Client-Side Budget Insufficiency Handler Redirect Matrix
     if (currentBalance < currentCalculatedPriceNaira) {
         const lowBalModal = document.getElementById('lowBalanceModal');
         if(lowBalModal) {
             lowBalModal.classList.remove('hidden');
             lowBalModal.classList.add('flex');
         }
-        await dispatchAuditLog("Purchase Blocked", `Blocked due to insufficient balance. Balance: ₦${currentBalance}, Cost: ₦${currentCalculatedPriceNaira}`, "ERROR");
+        await dispatchAuditLog(
+            "Insufficient Balance Triggered", 
+            `User account lacks funds. Site Wallet Balance: ₦${currentBalance} | Requested Product Value: ₦${currentCalculatedPriceNaira} [Service: ${state.selectedServiceName}, Country: ${state.selectedCountryName}, Operator: ${operatorName}]`, 
+            "ERROR"
+        );
         return;
     }
 
-    showSpinner(true);
-    await dispatchAuditLog("Purchase Process Initiated", `Line lease active on ${state.selectedServiceName} (${state.selectedCountryName}) costing ₦${currentCalculatedPriceNaira}`, "INFO");
+    // Displays consumer-friendly loading state mapping parameters
+    showSpinner(true, "Processing your request...");
 
     const buyEndpoint = `v1/user/buy/activation/${state.selectedCountryName}/${operatorName}/${state.selectedServiceCode}`;
     const targetUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent(buyEndpoint)}`;
 
     try {
         const res = await fetch(targetUrl);
-        const data = await res.json();
-        showSpinner(false);
+        
+        // Catches bad HTTP status codes safely before executing text streaming reads
+        if (!res.ok) {
+            throw new Error("PROVIDER_STOCK_SHORTAGE");
+        }
 
-        if (data.error || !data.id) {
+        let data;
+        try {
+            data = await res.json();
+        } catch(jsonErr) {
+            // Fixes visual crashes from unformatted text endpoints [Screenshot_2026-07-06-18-07-32-395_com.teejay.trebedit.jpg]
+            throw new Error("PROVIDER_STOCK_SHORTAGE");
+        }
+
+        // 2. Structural Restocking Routing Rule (User has enough balance but server node returns errors/depletion flags)
+        if (data.error || !data.id || data.error === "no balance" || data.status === "no_numbers") {
+            showSpinner(false);
             const restockM = document.getElementById('restockingModal');
             if(restockM) {
                 restockM.classList.remove('hidden');
                 restockM.classList.add('flex');
             }
-            await dispatchAuditLog("Stock Shortage", `Carrier allocation depleted variant: ${data.error || 'Empty Stock'}`, "ERROR");
+            await dispatchAuditLog(
+                "Restocking Mode Imposed", 
+                `5sim allocation exhausted or insufficient operator payload. Server context message: ${data.error || 'Empty Stock Data'} [Service: ${state.selectedServiceName}, Country: ${state.selectedCountryName}, Operator: ${operatorName}]`, 
+                "RESTOCK"
+            );
             return;
         }
 
@@ -379,13 +401,23 @@ async function triggerPurchaseProcess(operatorName, validatedFinalPrice) {
         document.getElementById('panel-stage-3').classList.add('hidden');
         document.getElementById('smsPanel').classList.remove('hidden');
 
-        await dispatchAuditLog("Order Formally Structured", `Line allocated successfully. Number: +${phoneNumber}`, "SUCCESS");
-
+        showSpinner(false);
         launchTimerCountdown();
         startPolling();
+
     } catch (err) {
         showSpinner(false);
-        alert(`Hardware Transaction loop broken: ${err.message}`);
+             // Fallback catch handles any structural infrastructure error dynamically as a temporary Restock notice
+        const restockM = document.getElementById('restockingModal');
+        if(restockM) {
+            restockM.classList.remove('hidden');
+            restockM.classList.add('flex');
+        }
+        await dispatchAuditLog(
+            "Restocking Mode Imposed (Exception)", 
+            `Server intercept error detected: ${err.message}. Showing restocking notification screen to user. [Service: ${state.selectedServiceName}, Country: ${state.selectedCountryName}, Operator: ${operatorName}]`, 
+            "RESTOCK"
+        );
     }
 }
 
@@ -417,7 +449,7 @@ function launchTimerCountdown() {
     }, 1000);
 
     if (totalExpiryTimer) clearInterval(totalExpiryTimer);
-    totalExpiryTimer = setInterval(() => {
+    totalExpiryTimer = setInterval(async () => {
         state.expirySecondsLeft--;
         let mins = Math.floor(state.expirySecondsLeft / 60);
         let secs = state.expirySecondsLeft % 60;
@@ -427,7 +459,25 @@ function launchTimerCountdown() {
         if (state.expirySecondsLeft <= 0) {
             clearInterval(totalExpiryTimer);
             clearInterval(smsTimer);
-            dispatchAuditLog("Session Expired", `Lease window expired without code interception.`, "INFO");
+            
+            const activeNumText = document.getElementById('activeNumber') ? document.getElementById('activeNumber').innerText : "Unknown";
+            await dispatchAuditLog(
+                "Lease Window Expired", 
+                `Virtual line lease timed out without capturing an incoming transmission packet. Order ID: ${currentOrderId} | Number: ${activeNumText} | Service: ${state.selectedServiceName}`, 
+                "TIMEOUT"
+            );
+            
+            // Execute automated timeout recovery routine parameters
+            try {
+                const cancelUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent('v1/user/cancel/' + currentOrderId)}`;
+                await fetch(cancelUrl);
+                const refundedBalance = currentBalance + currentCalculatedPriceNaira;
+                await sb.from('profiles').update({ wallet_balance: refundedBalance }).eq('id', userProfile.id);
+                await sb.from('transactions').update({ status: 'Cancelled' }).eq('id', currentTransactionId);
+                currentBalance = refundedBalance;
+                updateBalanceUIDisplays();
+            } catch(e) { console.error("Auto recovery sequence dropped context:", e); }
+            
             resetActivationUIPanel();
         }
     }, 1000);
@@ -449,6 +499,9 @@ function startPolling() {
                 clearInterval(totalExpiryTimer);
 
                 const otpCode = data.sms[0].code;
+                const fullSmsText = data.sms[0].text || "No full payload payload data stored.";
+                const activeNumText = document.getElementById('activeNumber') ? document.getElementById('activeNumber').innerText : "Unknown";
+                
                 document.getElementById('otpDisplay').innerText = otpCode;
                 document.getElementById('otpDisplay').className = "text-4xl font-mono font-black text-emerald-600 dark:text-emerald-400 tracking-[0.25em] bg-white dark:bg-slate-900/40 py-3 rounded-xl border border-slate-200 dark:border-slate-900 pop-animation";
 
@@ -462,11 +515,16 @@ function startPolling() {
                 await sb.from('transactions').update({ status: 'Completed', metadata: { otp: otpCode } }).eq('id', currentTransactionId);
                 await sb.from('sms_logs').insert({
                     user_id: userProfile.id, transaction_id: currentTransactionId,
-                    number: document.getElementById('activeNumber').innerText, otp: otpCode,
+                    number: activeNumText, otp: otpCode,
                     service: state.selectedServiceName, country: state.selectedCountryName, status: 'Completed'
                 });
 
-                await dispatchAuditLog("OTP Captured", `Intercept complete. OTP: [${otpCode}]`, "SUCCESS");
+                // Detailed data validation audit metrics dispatched to Telegram channel[span_3](start_span)[span_3](end_span)
+                await dispatchAuditLog(
+                    "Order Complete - Transaction Satisfied", 
+                    `Verification token intercepted successfully!\n• Number: ${activeNumText}\n• Service: ${state.selectedServiceName}\n• Country: ${state.selectedCountryName}\n• Operator: ${lastUsedOperator.toUpperCase()}\n• Intercepted OTP Code: ${otpCode}\n• Raw Text: ${fullSmsText}\n• Debit Amount: ₦${currentCalculatedPriceNaira}\n• Status: TRANSACTION_SUCCESS`, 
+                    "SUCCESS"
+                );
             }
         } catch (e) { console.log("Routing stream query loops active..."); }
     }, 4500);
@@ -477,7 +535,9 @@ async function cancelCurrentOrder() {
     clearInterval(smsTimer);
     clearInterval(countdownTimer);
     clearInterval(totalExpiryTimer);
-    showSpinner(true);
+    showSpinner(true, "Releasing line allocation...");
+
+    const activeNumText = document.getElementById('activeNumber') ? document.getElementById('activeNumber').innerText : "Unknown";
 
     try {
         const cancelUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent('v1/user/cancel/' + currentOrderId)}`;
@@ -490,7 +550,12 @@ async function cancelCurrentOrder() {
         currentBalance = refundedBalance;
         updateBalanceUIDisplays();
         
-        await dispatchAuditLog("Order Revoked Safely", `Order ID: ${currentOrderId} canceled. Re-credited ₦${currentCalculatedPriceNaira}.`, "CANCEL");
+        // Logs operational cancel transaction data instantly to Telegram channel[span_4](start_span)[span_4](end_span)
+        await dispatchAuditLog(
+            "Order Revoked & Refunded", 
+            `User deliberately canceled the line lease. Funds have been re-credited safely.\n• Order ID: ${currentOrderId}\n• Released Number: ${activeNumText}\n• Service: ${state.selectedServiceName}\n• Country: ${state.selectedCountryName}\n• Re-credited Amount: ₦${currentCalculatedPriceNaira}\n• Status: ORDER_CANCELLED_BY_USER`, 
+            "CANCEL"
+        );
     } catch(e){ console.error(e); }
 
     showSpinner(false);
@@ -500,11 +565,10 @@ async function cancelCurrentOrder() {
 async function finishCurrentOrder() {
     if (!currentOrderId) return;
     try {
-        showSpinner(true);
+        showSpinner(true, "Finalizing transaction record...");
         const finishUrl = `${PROXY_GATEWAY_URL}/?endpoint=${encodeURIComponent('v1/user/finish/' + currentOrderId)}`;
         await fetch(finishUrl);
         showSpinner(false);
-        await dispatchAuditLog("Order Released Successfully", `Closed allocation ID: ${currentOrderId}`, "SUCCESS");
         resetActivationUIPanel();
     } catch(e){ showSpinner(false); resetActivationUIPanel(); }
 }
@@ -544,22 +608,32 @@ function filterCountries() {
     renderCountriesGrid(filtered);
 }
 
-function showSpinner(status) {
+// Fixed loader wrapper interface node elements
+function showSpinner(status, customPromptText = "Loading...") {
     const loader = document.getElementById('global-loading-state');
+    const labelTextElement = document.getElementById('loading-text') || (loader ? loader.querySelector('.text-sm, p') : null);
+    
     if(!loader) return;
-    if (status) loader.classList.remove('hidden');
-    else loader.classList.add('hidden');
+    
+    if (status) {
+        if (labelTextElement) {
+            labelTextElement.innerText = customPromptText.toUpperCase();
+        }
+        loader.classList.remove('hidden');
+    } else {
+        loader.classList.add('hidden');
+    }
 }
 
 function copyNumber() { 
     navigator.clipboard.writeText(document.getElementById('activeNumber').innerText); 
-    alert("Number Allocation string copied to clipboard packet matrix.");
+    alert("Number Allocation string copied to clipboard.");
 }
 function copyOTP() {
     const code = document.getElementById('otpDisplay').innerText;
     if(code !== "------") {
         navigator.clipboard.writeText(code);
-        alert("Verification Token code packet extracted.");
+        alert("Verification Token code copied.");
     }
 }
 

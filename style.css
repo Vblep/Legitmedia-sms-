@@ -41,6 +41,14 @@ body {
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
+/* Enhanced Operator Card Layout Rules — Removes cluttered styling */
+#operators-grid div {
+    padding: 1.5rem !important; 
+    margin-bottom: 1.15rem !important;
+    gap: 1.25rem !important;
+    transition: all 0.25s ease-in-out;
+}
+
 /* Custom Minimalist Webkit Scrollbar */
 .custom-scroll::-webkit-scrollbar {
     width: 6px;
